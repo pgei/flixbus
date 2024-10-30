@@ -2,9 +2,10 @@
 
 **Beschreibung der Anwendung:**
 
-Die Anwendung die in diesem Projekt erstellt wurde, stellt ein Buchungssystem für den Vertrieb von Transport-Dienstleistungen dar. Ziel ist dabei, dass die Anwendung angebotene Transporte konsistent verwaltet und bei Verfügbarkeit Kunden zum Kauf zur Verfügung stellt, wobei Transporte geändert, hinzukommen und entfallen können sowie Kunden bereits gebuchte Tickets stornieren können.
+Die Anwendung die in diesem Projekt erstellt wurde, stellt ein Buchungssystem für den Vertrieb von Transport-Dienstleistungen dar. Ziel ist dabei, dass die Anwendung angebotene Transporte konsistent verwaltet und bei Verfügbarkeit Kunden zum Kauf zur Verfügung stellt, wobei Transporte hinzukommen und entfallen können sowie Kunden bereits gebuchte Tickets stornieren können.
 
-Die Nutzung der Anwendung erfordert zunächst erstmal eine Anmeldung, wodurch die Berechtigungen des Users festgelegt werden. Es gibt zwei Klassen von Usern: Administrator und Kunde. Unabhängig von der Klasse kann ein User folgende Funktionalität nutzen:
+Die Nutzung der Anwendung erfordert zunächst erstmal eine Anmeldung, wodurch die Berechtigungen des Users festgelegt werden. Sollte kein Account bestehen, kann einer erstellt werden. Es gibt zwei Klassen von Usern: Administrator und Kunde. Unabhängig von der Klasse kann ein User folgende Funktionalität nutzen:
+- Anzeigen aller Reiseziele
 - Anzeigen aller angebotenen Transporte
 - Filtern der angebotenen Transporte nach den Kriterien Datum, Preis, (Abfahrts-/Ankunfts-)Ort, (Abfahrts-/Ankunfts-)Zeit
 
@@ -14,13 +15,11 @@ Kunden haben ein Guthaben und könne sich mit diesem Guthaben Plätze bei einem 
 - Alle gebuchten Tickets anzeigen
 - Ticket stornieren
 
-Administratoren können Transporte sowie Tickets in der Anwendung verwalten: sie können neue Transporte zwischen zwei Orten sowie neue Orte hinzufügen, Transporte ändern sowie sowohl Tickets als auch Transporte aus dem System entfernen. Nach erfolgter Anmeldung ergeben sich somit folgende zusätzliche Funktionalitäten für Administratoren:
+Administratoren können Transporte in der Anwendung erstellen und verwalten: sie können neue Transporte zwischen zwei Orten sowie neue Orte hinzufügen und Transporte aus dem System entfernen, allerdings nur solche die sie selber irgendwann erstellt haben. Nach erfolgter Anmeldung ergeben sich somit folgende zusätzliche Funktionalitäten für Administratoren:
 - Hinzufügen eines Ortes
 - Hinzufügen eines neuen Transportes zwischen zwei Orten
 - Anzeigen aller Tickets für einen ausgewählten Transport
-- Stornieren von Tickets (mit einhergehender Rückzahlung des Geldes an Kunden)
-- Änderung von Transporten (und somit daran gekoppelte Tickets) 
-- Annulierung eines Transports
+- Annulierung eines verwalteten Transports (mit entsprechender Stornierung aller gebuchten Tickets)
 
 **Klassendiagramm:**
 
