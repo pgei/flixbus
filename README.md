@@ -23,4 +23,5 @@ Administratoren können Transporte in der Anwendung erstellen und verwalten: sie
 
 **Klassendiagramm:**
 
-Here goes the diagram...
+<img width="373" alt="Klassendiagramm" src="https://github.com/user-attachments/assets/30c37e83-85f1-4a05-b2d0-c1acd9f53382">
+
