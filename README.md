@@ -1,3 +1,5 @@
+Gruppenprojekt MLG5008 - Flixbus
+
 Beschreibung der Anwendung:
 
 Die Anwendung die in diesem Projekt erstellt wurde, stellt ein Buchungssystem für den Vertrieb von Transport-Dienstleistungen dar. Ziel ist dabei, dass die Anwendung angebotene Transporte konsistent verwaltet und bei Verfügbarkeit Kunden zum Kauf zur Verfügung stellt, wobei Transporte hinzukommen und entfallen können sowie Kunden bereits gebuchte Tickets stornieren können.
@@ -19,7 +21,6 @@ Hinzufügen eines Ortes
 Hinzufügen eines neuen Transportes zwischen zwei Orten
 Anzeigen aller Tickets für einen ausgewählten Transport
 Annulierung eines verwalteten Transports (mit entsprechender Stornierung aller gebuchten Tickets)
-
-Projektstruktur in IntelliJ aufsetzen
+Klassendiagramm:
 
 <img width="373" alt="Klassendiagramm" src="https://github.com/user-attachments/assets/83df1fa8-913b-4172-88fc-3de961018d8c">
