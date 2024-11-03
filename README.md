@@ -21,3 +21,5 @@ Anzeigen aller Tickets für einen ausgewählten Transport
 Annulierung eines verwalteten Transports (mit entsprechender Stornierung aller gebuchten Tickets)
 
 Projektstruktur in IntelliJ aufsetzen
+
+<img width="373" alt="Klassendiagramm" src="https://github.com/user-attachments/assets/83df1fa8-913b-4172-88fc-3de961018d8c">
