@@ -5,19 +5,19 @@ package main.java.model;
  */
 public abstract class Person {
 
-    private String name;
+    private String username;
     private String email;
     private String password;
 
     /**
      * Konstruktor für Erstellung eines Nutzers, wobei kontrolliert wird, dass die E-Mail-Adresse als Identifier einzigartig ist.
      *
-     * @param name Name des Nutzers
-     * @param email E-Mail-Adresse des Nutzers, muss einzigartig sein
-     * @param password Passwort des Nutzers
+     * @param name      Name des Nutzers
+     * @param email     E-Mail-Adresse des Nutzers, muss einzigartig sein
+     * @param password  Passwort des Nutzers
      */
     public Person(String name, String email, String password) {
-        this.name = name;
+        this.username = name;
         //todo: check if email is unique
         this.email = email;
         this.password = password;
