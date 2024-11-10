@@ -1,4 +1,4 @@
 package main.java.model;
 
-public class Ort {
+public class Location {
 }
