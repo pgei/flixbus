@@ -17,7 +17,7 @@ public abstract class Transport {
     private LocalTime sta; //Scheduled time of arrival
 
     /**
-     * Konstruktor für die Erstellung eines Transports, wobei im System eine einzigartige Id vergeben wird
+     * Konstruktor für die Erstellung eines Transports, wobei im System eine einzigartige Id vergeben wird.
      *
      * @param origin        Ort an dem der Transport startet
      * @param destination   Ort an dem der Transport endet
@@ -37,6 +37,13 @@ public abstract class Transport {
         this.std = LocalTime.of(hourd, mind);
         this.sta = LocalTime.of(houra, mina);
     }
+
+    /**
+     * Getter für einzigartige Id des Transports
+     *
+     * @return  Einzigartige Id des Transports
+     */
+    public int getTransportId() {return this.transportId;}
 
     /**
      * Getter für Ort an dem der Transport startet
