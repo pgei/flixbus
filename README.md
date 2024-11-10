@@ -28,5 +28,6 @@ Transporte können sowohl für Züge als auch Busse erstellt werden, der Untersc
 
 **Klassendiagramm:**
 
-<img width="398" alt="Klassendiagramm" src="https://github.com/user-attachments/assets/cb157566-7451-47bd-be29-208d2e63d149">
+![bild](https://github.com/user-attachments/assets/f577e249-2536-4fd4-9149-8ae8b871409d)
+
 
