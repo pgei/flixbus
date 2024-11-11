@@ -1,6 +1,6 @@
 package main.java.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Klasse für Kunden, welche die abstrakte Klasse Person um zusätzliche Attribute und dazugehörige getter-Methoden erweitert.
@@ -10,7 +10,7 @@ public class Costumer extends Person {
 
     private final Boolean admin = false;
     private int balance;
-    private List<Ticket> tickets;
+    private ArrayList<Ticket> tickets;
 
     /**
      * Konstuktor für Erstellung eines Kunden-Kontos, welcher den Konstuktor der erweiterten Klasse Person überlädt sowie um die Möglichkeit erweitert, ein Startguthaben bei Erstellung eines Kontos festzulegen.
@@ -43,8 +43,6 @@ public class Costumer extends Person {
      *
      * @return  Liste von gültigen Tickets, welche dieser Kunde erworben hat
      */
-    public List<Ticket> getAllTickets() {return this.tickets;}
-
-
+    public ArrayList<Ticket> getAllTickets() {return this.tickets;}
 
 }

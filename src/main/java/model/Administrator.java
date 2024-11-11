@@ -1,6 +1,6 @@
 package main.java.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Klasse für Administratoren, welche die abstrakte Klasse Person um Attribute und dazugehörige getter-Methoden erweitert.
@@ -8,7 +8,7 @@ import java.util.List;
 public class Administrator extends Person {
 
     private final Boolean admin = true;
-    private List<Transport> transports;
+    private ArrayList<Transport> transports;
 
     /**
      * Konstuktor für Erstellung eines Administrator-Kontos, welcher den Konstuktor der erweiterten Klasse Person überlädt.
@@ -33,7 +33,7 @@ public class Administrator extends Person {
      *
      * @return  Liste der Transporte, welche von diesem Administrator verwaltet werden
      */
-    public List<Transport> getAllAdministeredTransports() {
+    public ArrayList<Transport> getAllAdministeredTransports() {
         return this.transports;
     }
 
