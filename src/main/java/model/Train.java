@@ -27,8 +27,8 @@ public class Train extends Transport {
      * @param firstcapacity     Gesamtkapazität des Zugtransportes in der 1. Klasse
      * @param secondcapacity    Gesamtkapazität des Zugtransportes in der 2. Klasse
      */
-    public Train(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
-        super(origin, destination, year, month, day, hourd, mind, houra, mina);
+    public Train(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
+        super(id, origin, destination, year, month, day, hourd, mind, houra, mina);
         this.firstCapacity = firstcapacity;
         this.secondCapacity = secondcapacity;
     }
@@ -41,11 +41,25 @@ public class Train extends Transport {
     public int getFirstCapacity() {return this.firstCapacity;}
 
     /**
+     * Setter für noch verfügbare Kapazität der 1. Klasse auf Zugtransport
+     *
+     * @param newcapacity   Neue Anzahl noch freier Sitzplätze in der 1. Klasse
+     */
+    public void setFirstCapacity(int newcapacity) {this.firstCapacity = newcapacity;}
+
+    /**
      * Getter für die zum Zeitpunkt des Methodenaufrufs noch verfügbare Kapazität in der 2. Klasse
      *
      * @return Anzahl noch freier Sitzplätze in der 2. Klasse auf dem Zugtransport
      */
     public int getSecondCapacity() {return this.secondCapacity;}
+
+    /**
+     * Setter für noch verfügbare Kapazität der 2. Klasse auf Zugtransport
+     *
+     * @param newcapacity   Neue Anzahl noch freier Sitzplätze in der 2. Klasse
+     */
+    public void setSecondCapacity(int newcapacity) {this.secondCapacity = newcapacity;}
 
     /**
      * Getter für HashMap welche alle, zum Zeitpunkt des Methodenaufrufs, auf dem Zugtransport reservierten Tickets enthält

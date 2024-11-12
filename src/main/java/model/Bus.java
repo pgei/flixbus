@@ -25,8 +25,8 @@ public class Bus extends Transport {
      * @param mina          Minute, zu der der Bustransport endet
      * @param capacity      Gesamtkapazität des Bustransportes
      */
-    public Bus(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
-        super(origin, destination, year, month, day, hourd, mind, houra, mina);
+    public Bus(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
+        super(id, origin, destination, year, month, day, hourd, mind, houra, mina);
         this.capacity = capacity;
     }
 
@@ -36,6 +36,13 @@ public class Bus extends Transport {
      * @return Anzahl noch freier Sitzplätze auf dem Bustransport
      */
     public int getCapacity() {return this.capacity;}
+
+    /**
+     * Setter für noch verfügbare Kapazität auf Bustransport
+     *
+     * @param newcapacity   Neue Anzahl noch freier Sitzplätze auf dem Bustransport
+     */
+    public void setCapacity(int newcapacity) {this.capacity = newcapacity;}
 
     /**
      * Getter für HashMap welche alle, zum Zeitpunkt des Methodenaufrufs, auf dem Bustransport reservierten Tickets enthält

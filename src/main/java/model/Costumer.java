@@ -39,6 +39,13 @@ public class Costumer extends Person {
     public int getBalance() {return this.balance;}
 
     /**
+     * Setter für das Guthaben dieses Kunden
+     *
+     * @param money Wert zu dem das Guthaben geändert werden soll
+     */
+    public void setBalance(int money) {this.balance = money;}
+
+    /**
      * Getter für alle von diesem Kunden erworbenen, zur Zeit gültigen Tickets
      *
      * @return  Liste von gültigen Tickets, welche dieser Kunde erworben hat

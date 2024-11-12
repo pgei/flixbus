@@ -53,4 +53,13 @@ public class InMemoryRepository<T extends ID> implements IRepository<T> {
     public List<T> getAll() {
         return this.repository.values().stream().toList();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsKey(Object key) {
+        return this.repository.containsKey(key);
+    }
+
 }

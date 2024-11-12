@@ -18,7 +18,6 @@ public abstract class Person implements ID {
      */
     public Person(String name, String email, String password) {
         this.username = name;
-        //todo: check if email is unique
         this.email = email;
         this.password = password;
     }
@@ -48,6 +47,5 @@ public abstract class Person implements ID {
     public boolean isAuthentic(String password) {
         return this.password.equals(password);
     }
-
 
 }

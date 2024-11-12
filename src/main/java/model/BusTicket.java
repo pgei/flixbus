@@ -10,8 +10,8 @@ public class BusTicket extends Ticket {
      * @param price         Preis des Tickets
      * @param seat          Sitzplatz welcher unter dem Ticket reserviert ist
      */
-    public BusTicket(Costumer costumer, Transport transport, int price, int seat) {
-        super(costumer, transport, price, seat);
+    public BusTicket(int id, Costumer costumer, Transport transport, int price, int seat) {
+        super(id, costumer, transport, price, seat);
     }
 
 }

@@ -20,8 +20,8 @@ public abstract class Ticket implements ID {
      * @param price         Preis des Tickets
      * @param seat          Sitzplatz welcher unter dem Ticket reserviert ist
      */
-    public Ticket(Costumer costumer, Transport transport, int price, int seat) {
-        //todo: add unique ticketId
+    public Ticket(int id, Costumer costumer, Transport transport, int price, int seat) {
+        this.ticketId = id;
         this.costumer = costumer;
         this.transport = transport;
         this.price = price;

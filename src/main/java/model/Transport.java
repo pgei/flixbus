@@ -29,8 +29,8 @@ public abstract class Transport implements ID {
      * @param houra         Stunde, zu der der Transport endet
      * @param mina          Minute, zu der der Transport endet
      */
-    public Transport(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina) {
-        //todo: add unique transportId
+    public Transport(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina) {
+        this.transportId = id;
         this.origin = origin;
         this.destination = destination;
         this.date = LocalDate.of(year, month, day);

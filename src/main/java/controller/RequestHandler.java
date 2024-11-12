@@ -1,14 +1,13 @@
 package main.java.controller;
 
-import model.*;
-import service.BookingSystem;
+import main.java.service.BookingSystem;
 import java.util.Scanner;
 
 public class RequestHandler {
-    private Flixbus bookingSystem;
+    private BookingSystem bookingSystem;
     private Scanner scanner;
 
-    public  RequestHandler(Flixbus bookingSystem) {
+    public  RequestHandler(BookingSystem bookingSystem) {
         this.bookingSystem = bookingSystem;
         this.scanner = new Scanner(System.in);
     }

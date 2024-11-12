@@ -44,4 +44,11 @@ public interface IRepository<T extends ID> {
      */
     List<T> getAll();
 
+    /**
+     * Kontrolliert, ob eine ID schon im Repository als vergeben worden ist
+     *
+     * @return  Wahr, wenn bereits ein Objekt mit der gegebenen ID im Repository existiert, sonst falsch
+     */
+    boolean containsKey(Object key);
+
 }
