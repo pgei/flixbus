@@ -49,4 +49,20 @@ public class RequestHandler {
             }
         }
     }
+    private void register() {
+        System.out.println("\n--- Register ---");
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+
+        boolean success = bookingSystem.registerUser(username, email, password);
+        if (success) {
+            System.out.println("Registration successful!");
+        } else {
+            System.out.println("Registration failed. User may already exist.");
+        }
+    }
 }
