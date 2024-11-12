@@ -65,4 +65,28 @@ public class RequestHandler {
             System.out.println("Registration failed. User may already exist.");
         }
     }
+    private void login() {
+        System.out.println("\n--- Login ---");
+        System.out.print("Enter username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine();
+
+        if (bookingSystem.checkLoginCredentials(username, password)) {
+            System.out.println("Login successful!");
+            // Further logic for logged-in users can be added here
+        } else {
+            System.out.println("Invalid credentials. Please try again.");
+        }
+    }
+
+    private void viewTransports() {
+        System.out.println("\n--- Available Transports ---");
+        bookingSystem.getAllTransports().forEach(System.out::println);
+    }
+
+    private void viewDestinations() {
+        System.out.println("\n--- Available Destinations ---");
+        bookingSystem.getLocations().forEach(System.out::println);
+    }
 }
