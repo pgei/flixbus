@@ -4,7 +4,7 @@ package main.java.model;
  * Klasse die Orte darstellt mit deren Attributen und dazugehörigen getter-Methoden
  */
 
-public class Location {
+public class Location implements ID {
 
     private int locationId;
     private String street;
@@ -24,11 +24,10 @@ public class Location {
     }
 
     /**
-     * Getter für einzigartige Id des Ortes
-     *
-     * @return  Einzigartige Id des Ortes
+     * {@inheritDoc}
      */
-    public int getLocationId() {return this.locationId;}
+    @Override
+    public Object getId() {return this.locationId;}
 
     /**
      * Getter für Adresse des Ortes

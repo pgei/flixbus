@@ -4,7 +4,7 @@ package main.java.model;
  * Abstrakte Klasse, die grundlegende Attribute und Methoden für alle Tickets definiert.
  */
 
-public abstract class Ticket {
+public abstract class Ticket implements ID {
 
     private int ticketId;
     private Costumer costumer;
@@ -29,11 +29,10 @@ public abstract class Ticket {
     }
 
     /**
-     * Getter für einzigartige Id des Tickets
-     *
-     * @return  Einzigartige Id des Tickets
+     * {@inheritDoc}
      */
-    public int getTicketId() {return this.ticketId;}
+    @Override
+    public Object getId() {return this.ticketId;}
 
     /**
      * Getter für Kunde der das Ticket reserviert hat

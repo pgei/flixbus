@@ -7,7 +7,7 @@ import java.time.LocalTime;
  * Abstrakte Klasse, die grundlegende Attribute und Methoden für alle Transporte definiert.
  */
 
-public abstract class Transport {
+public abstract class Transport implements ID {
 
     private int transportId;
     private Location origin;
@@ -39,11 +39,10 @@ public abstract class Transport {
     }
 
     /**
-     * Getter für einzigartige Id des Transports
-     *
-     * @return  Einzigartige Id des Transports
+     * {@inheritDoc}
      */
-    public int getTransportId() {return this.transportId;}
+    @Override
+    public Object getId() {return this.transportId;}
 
     /**
      * Getter für Ort an dem der Transport startet

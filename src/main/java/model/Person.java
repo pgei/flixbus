@@ -3,7 +3,7 @@ package main.java.model;
 /**
  * Abstrakte Klasse, die grundlegende Attribute und Methoden für alle Nutzer der Anwendung definiert.
  */
-public abstract class Person {
+public abstract class Person implements ID {
 
     private String username;
     private String email;
@@ -24,6 +24,21 @@ public abstract class Person {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getId() {
+        return this.email;
+    }
+
+    /**
+     * Getter für Anwendernamen der Person
+     *
+     * @return Anwendername der Person
+     */
+    public String getUsername() {return this.username;}
+
+    /**
      * Methode die kontrolliert, ob ein gegebener String dem Passwort der Person entspricht.
      * Vorgesehen zur Nutzung bei Anmeldung eines Nutzers, um die Authentizität zu überprüfen.
      *
@@ -33,4 +48,6 @@ public abstract class Person {
     public boolean isAuthentic(String password) {
         return this.password.equals(password);
     }
+
+
 }
