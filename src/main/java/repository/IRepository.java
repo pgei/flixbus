@@ -9,7 +9,7 @@ import java.util.List;
 public interface IRepository<T extends ID> {
 
     /**
-     * Erzeugt ein neues Objekt im Repository.
+     * Erzeugt ein neues Objekt im Repository, falls dieses dort noch nicht gespeichert wurde
      *
      * @param object    Objekt das im Repository erzeugt werden soll
      */

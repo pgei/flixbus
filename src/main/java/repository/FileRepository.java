@@ -1,4 +1,4 @@
 package main.java.repository;
 
-public class DateiRepository {
+public class FileRepository {
 }
