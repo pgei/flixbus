@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class Bus extends Transport {
 
     private int capacity;  //Kapazität die noch verfügbar ist (freie Plätze)
-    private HashMap<Integer, BusTicket> bookedSeats;
+    private HashMap<Integer, BusTicket> bookedSeats = new HashMap<>();
 
     /**
      * Konstuktor für Erstellung eines Bustransports, welcher den Konstuktor der erweiterten Klasse Transport überlädt sowie zusätzlich die anfängliche Kapazität des Buses definiert.

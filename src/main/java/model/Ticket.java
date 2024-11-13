@@ -63,6 +63,15 @@ public abstract class Ticket implements ID {
     public int getSeat() {return this.seat;}
 
     /**
+     * Setter für Sitzplatz welcher über das Ticket reserviert wurde
+     *
+     * @param seat  Nummer des Sitzplatzes
+     */
+    public void setSeat(int seat) {
+        this.seat = seat;
+    }
+
+    /**
      * Wiedergabe des Objektes als String zur besseren Lesbarkeit.
      *
      * @return  String-Repräsentation des Tickets

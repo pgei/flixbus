@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Administrator extends Person {
 
     private final Boolean admin = true;
-    private ArrayList<Transport> transports;
+    private ArrayList<Transport> transports = new ArrayList<>();
 
     /**
      * Konstuktor für Erstellung eines Administrator-Kontos, welcher den Konstuktor der erweiterten Klasse Person überlädt.

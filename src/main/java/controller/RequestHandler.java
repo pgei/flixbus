@@ -17,7 +17,7 @@ public class RequestHandler {
     public void registerAsCostumer(String name, String email, String password) {
         boolean success = bookingSystem.registerUser(name, email, password, false);
         if (success) {
-            System.out.println("Registration successful! Welcome, "+name+"!");
+            System.out.println("Registration as costumer successful! Welcome, "+name+"!");
         } else {
             System.out.println("Registration failed. User may already exist.");
         }
@@ -44,13 +44,13 @@ public class RequestHandler {
     }
 
     public void viewAllTransports() {
-        StringBuilder out = new StringBuilder("Available transports:\n");
+        StringBuilder out = new StringBuilder("-- Available transports --\n");
         bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }
 
     public void viewAllDestinations() {
-        StringBuilder out = new StringBuilder("Available destinations:\n");
+        StringBuilder out = new StringBuilder("-- Available destinations --\n");
         bookingSystem.getLocations().forEach(location -> out.append(location.toString()).append("\n"));
         System.out.println(out);
 

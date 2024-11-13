@@ -10,7 +10,7 @@ public class Costumer extends Person {
 
     private final Boolean admin = false;
     private int balance;
-    private ArrayList<Ticket> tickets;
+    private ArrayList<Ticket> tickets = new ArrayList<>();
 
     /**
      * Konstuktor für Erstellung eines Kunden-Kontos, welcher den Konstuktor der erweiterten Klasse Person überlädt sowie um die Möglichkeit erweitert, ein Startguthaben bei Erstellung eines Kontos festzulegen.

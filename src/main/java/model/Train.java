@@ -10,7 +10,7 @@ public class Train extends Transport {
 
     private int firstCapacity;  //Kapazität die noch verfügbar ist (freie Plätze 1. Klasse)
     private int secondCapacity;  //Kapazität die noch verfügbar ist (freie Plätze 2. Klasse)
-    private HashMap<Integer, TrainTicket> bookedSeats;
+    private HashMap<Integer, TrainTicket> bookedSeats = new HashMap<>();
 
     /**
      * Konstuktor für Erstellung eines Zugtransports, welcher den Konstuktor der erweiterten Klasse Transport überlädt sowie zusätzlich die anfänglichen Kapazitäten des Zuges in der 1. und 2. Klasse definiert.

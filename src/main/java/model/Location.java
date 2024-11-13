@@ -50,7 +50,7 @@ public class Location implements ID {
      */
     @Override
     public String toString() {
-        return this.locationId + " : " + this.street + ", " + this.city;
+        return "ID " + this.locationId + " : " + this.street + ", " + this.city;
     }
 
 }
