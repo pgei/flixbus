@@ -71,12 +71,12 @@ public class BookingSystem {
         return costumer.getBalance();
     }
 
-    private void addBalance(Costumer costumer, int money) {
+    public void addBalance(Costumer costumer, int money) {
         costumer.setBalance(costumer.getBalance()+money);
         this.personRepository.update(costumer);
     }
 
-    private void reduceBalance(Costumer costumer, int money) {
+    public void reduceBalance(Costumer costumer, int money) {
         costumer.setBalance(costumer.getBalance()-money);
         this.personRepository.update(costumer);
     }
@@ -152,12 +152,14 @@ public class BookingSystem {
         }
     }
 
-    public boolean removeTicket(int id) {
+    public boolean removeTicket(Costumer costumer, int id) {
         Ticket ticket = this.ticketRepository.get(id);
         if (ticket == null) {
             return false;
         }
-
+        if (ticket.getCostumer().getId() != costumer.getId() ) {
+            return false;
+        }
         //Transport aktualisieren
         if (ticket.getTransport() instanceof Bus) {
             Bus transport = (Bus) ticket.getTransport();
@@ -193,7 +195,6 @@ public class BookingSystem {
         } else return false;
 
         //Kunde aktualisieren
-        Costumer costumer = ticket.getCostumer();
         costumer.getAllTickets().remove(ticket);
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
         addBalance(costumer, (int) (ticket.getPrice()*0.9));
@@ -202,31 +203,51 @@ public class BookingSystem {
         return true;
     }
 
-    public void createLocation(String street, String city) {
-        while (this.locationRepository.containsKey(this.locationIdCount)) {
-            this.locationIdCount++;
+    public boolean createLocation(Administrator admin, String street, String city) {
+        if (admin.isAdmin()) {
+            while (this.locationRepository.containsKey(this.locationIdCount)) {
+                this.locationIdCount++;
+            }
+            //Ticket erstellen und in Repository hinterlegen
+            Location loc = new Location(this.locationIdCount, street, city);
+            this.locationRepository.create(loc);
+            return true;
         }
-        //Ticket erstellen und in Repository hinterlegen
-        Location loc = new Location(this.locationIdCount, street, city);
-        this.locationRepository.create(loc);
+        return false;
     }
 
-    public void createBusTransport(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
-        while (this.transportRepository.containsKey(this.transportIdCount)) {
-            this.transportIdCount++;
+    public boolean createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
+        if (admin.isAdmin()) {
+            Location origin = this.locationRepository.get(originid);
+            Location destination = this.locationRepository.get(destinationid);
+            if (origin != null && destination != null) {
+                while (this.transportRepository.containsKey(this.transportIdCount)) {
+                    this.transportIdCount++;
+                }
+                //Ticket erstellen und in Repository hinterlegen
+                Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
+                this.transportRepository.create(transport);
+                return true;
+            }
         }
-        //Ticket erstellen und in Repository hinterlegen
-        Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
-        this.transportRepository.create(transport);
+        return false;
     }
 
-    public void createTrainTransport(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
-        while (this.transportRepository.containsKey(this.transportIdCount)) {
-            this.transportIdCount++;
+    public boolean createTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
+        if (admin.isAdmin()) {
+            Location origin = this.locationRepository.get(originid);
+            Location destination = this.locationRepository.get(destinationid);
+            if (origin != null && destination != null) {
+                while (this.transportRepository.containsKey(this.transportIdCount)) {
+                    this.transportIdCount++;
+                }
+                //Ticket erstellen und in Repository hinterlegen
+                Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
+                this.transportRepository.create(transport);
+                return true;
+            }
         }
-        //Ticket erstellen und in Repository hinterlegen
-        Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
-        this.transportRepository.create(transport);
+        return false;
     }
 
     public boolean removeTransport(Administrator admin, int id) {
@@ -236,7 +257,7 @@ public class BookingSystem {
         } else if (admin.getAllAdministeredTransports().contains(transport)){
             admin.getAllAdministeredTransports().remove(transport);
             this.personRepository.update(admin);
-            getAllTransportTickets(id).forEach(ticket -> {
+            getAllTransportTickets(admin, id).forEach(ticket -> {
                 ticket.getCostumer().getAllTickets().remove(ticket);
                 //Rückerstattung des vollen Ticketpreises
                 addBalance(ticket.getCostumer(),ticket.getPrice());
@@ -248,15 +269,18 @@ public class BookingSystem {
         } else return false;
     }
 
-    public List<Ticket> getAllTransportTickets(int id) {
-        Transport transport = this.transportRepository.get(id);
-        if (transport == null) {
-            return null;
-        } else if (transport instanceof Bus){
-            return ((Bus)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
-        } else if (transport instanceof Train){
-            return ((Train)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
-        } else return null;
+    public List<Ticket> getAllTransportTickets(Administrator admin, int id) {
+        if (admin.isAdmin()) {
+            Transport transport = this.transportRepository.get(id);
+            if (transport == null) {
+                return null;
+            } else if (transport instanceof Bus){
+                return ((Bus)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+            } else if (transport instanceof Train){
+                return ((Train)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+            } else return null;
+        }
+        return null;
     }
 
 }

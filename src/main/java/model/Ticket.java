@@ -62,4 +62,37 @@ public abstract class Ticket implements ID {
      */
     public int getSeat() {return this.seat;}
 
+    /**
+     * Wiedergabe des Objektes als String zur besseren Lesbarkeit.
+     *
+     * @return  String-Repräsentation des Tickets
+     */
+    @Override
+    public String toString() {
+        return "+++++++++++++++++++++++++++++++++++++++++" +
+                "\n TicketNr: " + this.ticketId +
+                "\n Price: " + this.price +
+                "\n Seat: " + this.seat +
+                "\n+++++++++++++++++++++++++++++++++++++++++\n" +
+                this.getTransport().toString() +
+                "\n+++++++++++++++++++++++++++++++++++++++++\n";
+    }
+
+    /**
+     * Wiedergabe des Tickets in verkürzter Form, wobei der Name des Kunden gezeigt wird, aber nicht die Daten des Trasnports.
+     * Dieser Modus ist ausschließlich für Administratoren gedacht, um alle Tickets die zu einem Transport gehören, anzuzeigen.
+     *
+     * @return  String-Repräsentation des Tickets in verkürzter Form
+     */
+    public String toStringReducedView() {
+        return "+++++++++++++++++++++++++++++++++++++++++" +
+                "\n TicketNr: " + this.ticketId +
+                "\n Price: " + this.price +
+                "\n Seat: " + this.seat +
+                "\n Name: " + this.costumer.getUsername() +
+                "\n+++++++++++++++++++++++++++++++++++++++++\n";
+    }
+
+
+
 }
