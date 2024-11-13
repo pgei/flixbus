@@ -79,4 +79,16 @@ public abstract class Transport implements ID {
      */
     public LocalTime getArrivalTime() {return this.sta;}
 
+    /**
+     * Wiedergabe des Objektes als String zur besseren Lesbarkeit
+     *
+     * @return  String-Repräsentation des Transportes
+     */
+    @Override
+    public String toString() {
+        return this.getClass() +"{ \nid = " + this.transportId+
+                "\n From " + this.origin.getStreet() +", " + this.origin.getCity() + "--> To " + this.destination.getStreet() +", " + this.destination.getCity() +
+                "\n Date: " + this.date.toString() +
+                "\n Departure: " + this.std.toString() +", Arrival: " + this.sta.toString() + "}";
+    }
 }

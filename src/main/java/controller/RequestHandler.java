@@ -1,91 +1,72 @@
 package main.java.controller;
 
+import main.java.model.Person;
 import main.java.service.BookingSystem;
-import java.util.Scanner;
 
 public class RequestHandler {
-    private BookingSystem bookingSystem;
-    private Scanner scanner;
 
-    public  RequestHandler(BookingSystem bookingSystem) {
-        this.bookingSystem = bookingSystem;
-        this.scanner = new Scanner(System.in);
-    }
+    private final BookingSystem bookingSystem;
 
-    public void start() {
-        System.out.println("Welcome to the Transport Booking System");
-        boolean running = true;
+    public RequestHandler(BookingSystem system) {this.bookingSystem = system;}
 
-        while (running) {
-            System.out.println("\nPlease select an option:");
-            System.out.println("1. Register");
-            System.out.println("2. Login");
-            System.out.println("3. View Transports");
-            System.out.println("4. View Destinations");
-            System.out.println("5. Exit");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    register();
-                    break;
-                case 2:
-                    login();
-                    break;
-                case 3:
-                    viewTransports();
-                    break;
-                case 4:
-                    viewDestinations();
-                    break;
-                case 5:
-                    running = false;
-                    System.out.println("Exiting the system. Goodbye!");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
-    }
-    private void register() {
-        System.out.println("\n--- Register ---");
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
-        boolean success = bookingSystem.registerUser(username, email, password);
+    public void registerAsCostumer(String name, String email, String password) {
+        boolean success = bookingSystem.registerUser(name, email, password, false);
         if (success) {
-            System.out.println("Registration successful!");
+            System.out.println("Registration successful! Welcome, "+name+"!");
         } else {
             System.out.println("Registration failed. User may already exist.");
         }
     }
-    private void login() {
-        System.out.println("\n--- Login ---");
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
 
-        if (bookingSystem.checkLoginCredentials(username, password)) {
-            System.out.println("Login successful!");
-            // Further logic for logged-in users can be added here
+    public void registerAsAdministrator(String name, String email, String password) {
+        boolean success = bookingSystem.registerUser(name, email, password, true);
+        if (success) {
+            System.out.println("Admin registration successful! Welcome, "+name+"!");
         } else {
-            System.out.println("Invalid credentials. Please try again.");
+            System.out.println("Registration failed. User may already exist.");
         }
     }
 
-    private void viewTransports() {
-        System.out.println("\n--- Available Transports ---");
-        bookingSystem.getAllTransports().forEach(System.out::println);
+    public Person login(String email, String password) {
+        Person loggedin = bookingSystem.checkLoginCredentials(email, password);
+        if (loggedin != null) {
+            System.out.println("Login successful! Welcome, "+loggedin.getUsername()+"!");
+            return loggedin;
+        } else {
+            System.out.println("Invalid credentials. Please try again.");
+            return null;
+        }
     }
 
-    private void viewDestinations() {
-        System.out.println("\n--- Available Destinations ---");
-        bookingSystem.getLocations().forEach(System.out::println);
+    public void viewAllTransports() {
+        StringBuilder out = new StringBuilder("Available transports:\n");
+        bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
     }
+
+    public void viewAllDestinations() {
+        StringBuilder out = new StringBuilder("Available destinations:\n");
+        bookingSystem.getLocations().forEach(location -> out.append(location.toString()).append("\n"));
+        System.out.println(out);
+
+    }
+
+
+    /*
+    register
+    login
+    exit
+
+    viewBalance
+    addBalance
+    buyTicket
+    viewTickets
+    cancelTicket
+    addLocation
+    addBusTransport
+    addTrainTransport
+    cancelTransport
+    showAllTickets
+     */
+
 }

@@ -33,7 +33,7 @@ public class BookingSystem {
 
     }
 
-    public void registerUser(String name, String email, String password, boolean admin) {
+    public boolean registerUser(String name, String email, String password, boolean admin) {
         //First check that ID is unique
         if (!this.personRepository.containsKey(email)) {
             if (admin) {
@@ -43,7 +43,9 @@ public class BookingSystem {
                 Costumer newcostumer = new Costumer(name, email, password);
                 this.personRepository.create(newcostumer);
             }
-        }
+            return true;
+        } else return false;
+
     };
 
     public Person checkLoginCredentials(String email, String password) {

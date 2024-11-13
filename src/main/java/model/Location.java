@@ -43,4 +43,14 @@ public class Location implements ID {
      */
     public String getCity() {return this.city;}
 
+    /**
+     * Wiedergabe des Objektes als String zur besseren Lesbarkeit
+     *
+     * @return  String-Repräsentation des Ortes
+     */
+    @Override
+    public String toString() {
+        return this.locationId + " : " + this.street + ", " + this.city;
+    }
+
 }
