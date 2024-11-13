@@ -3,7 +3,9 @@ package main.java.service;
 import main.java.model.*;
 import main.java.repository.IRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BookingSystem {
 
@@ -153,14 +155,41 @@ public class BookingSystem {
         if (ticket == null) {
             return false;
         }
+
         //Transport aktualisieren
-        Transport transport = ticket.getTransport();
-        if (transport instanceof Bus) {
-            //todo: entferne Ticket und erhöhe Kapazität
-        } else if (transport instanceof Train) {
-            //todo: entferne Ticket und erhöhe Kapazität
+        if (ticket.getTransport() instanceof Bus) {
+            Bus transport = (Bus) ticket.getTransport();
+            HashMap<Integer, BusTicket> mapTickets = transport.getBookedSeats();
+            //Ticket entfernen
+            mapTickets.remove(ticket.getSeat());
+            transport.setCapacity(transport.getCapacity()+1);
+            //Ticket abrufen, dass am neusten ist, und an Stelle des entfernten Tickets schreiben
+            BusTicket changeticket = mapTickets.get(transport.getCapacity());
+            mapTickets.remove(changeticket.getSeat());
+            mapTickets.put(ticket.getSeat(),changeticket);
+            this.transportRepository.update(transport);
+        } else if (ticket.getTransport() instanceof Train) {
+            Train transport = (Train) ticket.getTransport();
+            HashMap<Integer, TrainTicket> mapTickets = transport.getBookedSeats();
+            //Ticket entfernen
+            mapTickets.remove(ticket.getSeat());
+            if (((TrainTicket) ticket).getTicketClass() == 1) {
+                transport.setFirstCapacity(transport.getFirstCapacity()+1);
+                //Ticket abrufen, dass am neusten ist, und an Stelle des entfernten Tickets schreiben
+                TrainTicket changeticket = mapTickets.get(transport.getFirstCapacity());
+                mapTickets.remove(changeticket.getSeat());
+                mapTickets.put(ticket.getSeat(),changeticket);
+                this.transportRepository.update(transport);
+            } else {
+                transport.setSecondCapacity(transport.getSecondCapacity()+1);
+                //Ticket abrufen, dass am neusten ist, und an Stelle des entfernten Tickets schreiben
+                TrainTicket changeticket = mapTickets.get(transport.getSecondCapacity());
+                mapTickets.remove(changeticket.getSeat());
+                mapTickets.put(ticket.getSeat(),changeticket);
+                this.transportRepository.update(transport);
+            }
         } else return false;
-        this.transportRepository.update(transport);
+
         //Kunde aktualisieren
         Costumer costumer = ticket.getCostumer();
         costumer.getAllTickets().remove(ticket);
@@ -171,12 +200,61 @@ public class BookingSystem {
         return true;
     }
 
-    public void createLocation() {}
+    public void createLocation(String street, String city) {
+        while (this.locationRepository.containsKey(this.locationIdCount)) {
+            this.locationIdCount++;
+        }
+        //Ticket erstellen und in Repository hinterlegen
+        Location loc = new Location(this.locationIdCount, street, city);
+        this.locationRepository.create(loc);
+    }
 
-    public void createTransport() {}
+    public void createBusTransport(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
+        while (this.transportRepository.containsKey(this.transportIdCount)) {
+            this.transportIdCount++;
+        }
+        //Ticket erstellen und in Repository hinterlegen
+        Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
+        this.transportRepository.create(transport);
+    }
 
-    public void removeTransport() {}
+    public void createTrainTransport(Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
+        while (this.transportRepository.containsKey(this.transportIdCount)) {
+            this.transportIdCount++;
+        }
+        //Ticket erstellen und in Repository hinterlegen
+        Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
+        this.transportRepository.create(transport);
+    }
 
-    public void getAllTransportTickets() {}
+    public boolean removeTransport(Administrator admin, int id) {
+        Transport transport = this.transportRepository.get(id);
+        if (transport == null) {
+            return false;
+        } else if (admin.getAllAdministeredTransports().contains(transport)){
+            admin.getAllAdministeredTransports().remove(transport);
+            this.personRepository.update(admin);
+            getAllTransportTickets(id).forEach(ticket -> {
+                ticket.getCostumer().getAllTickets().remove(ticket);
+                //Rückerstattung des vollen Ticketpreises
+                addBalance(ticket.getCostumer(),ticket.getPrice());
+                this.personRepository.update(ticket.getCostumer());
+                this.ticketRepository.delete(ticket);
+            });
+            this.transportRepository.delete(transport);
+            return true;
+        } else return false;
+    }
+
+    public List<Ticket> getAllTransportTickets(int id) {
+        Transport transport = this.transportRepository.get(id);
+        if (transport == null) {
+            return null;
+        } else if (transport instanceof Bus){
+            return ((Bus)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+        } else if (transport instanceof Train){
+            return ((Train)transport).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+        } else return null;
+    }
 
 }

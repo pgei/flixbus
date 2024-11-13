@@ -17,8 +17,8 @@ public class Location implements ID {
      * @param street    Straße + eventuell Hausnummer, also Adresse des Ortes
      * @param city      Stadt in der sich der Ort befindet
      */
-    public Location(String street, String city) {
-        //todo: add unique locationId
+    public Location(int id, String street, String city) {
+        this.locationId = id;
         this.street = street;
         this.city = city;
     }
