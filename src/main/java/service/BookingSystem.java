@@ -61,7 +61,7 @@ public class BookingSystem {
         this.transportRepository = transport;
         this.ticketRepository = ticket;
         this.locationRepository = location;
-        this.ticketIdCount = ticket.getAll().size();
+        this.ticketIdCount = person.getAll().size();
         this.transportIdCount = transport.getAll().size();
         this.locationIdCount = location.getAll().size();
 
@@ -116,8 +116,8 @@ public class BookingSystem {
     }
 
     /**
-     * Methode, die alle Transporte zurückgibt, welche an vorgegebenen Orten starten bzw. enden und noch freie Kapazität haben.
-     * Dabei ist es auch möglich nur mit dem Abfahrtsort bzw. Ankunftsort zu filtern sowie, wenn keiner der beiden vorgegeben wurde, nur auf verfügbare Kapazität.
+     * Methode, welche alle Transporte zurückgibt, welche an vorgegebenen Orten starten bzw. enden.
+     * Dabei ist es auch möglich nur mit dem Abfahrtsort bzw. Ankunftsort zu filtern.
      *
      * @param origin        ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
      * @param destination   ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
@@ -125,62 +125,36 @@ public class BookingSystem {
      */
     public List<Transport> getTransportsFilteredByLocation(int origin, int destination) {
         if (origin == -1 && destination == -1) {
-            //Fall filtern nur auf Kapazität
-            List<Transport> filtered = new ArrayList<>();
-            this.transportRepository.getAll().forEach(transport -> {
-                if (transport.getCapacity() > 0) {
-                    filtered.add(transport);
-                }
-            });
-            return filtered;
+            //Fall keine Filterkriterien
+            return this.transportRepository.getAll();
         } else if (origin == -1) {
-            //Fall filtern auf Ankunftsort und Kapazität
+            //Fall filtern auf Ankunftsort
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getDestination().getId() == destination && transport.getCapacity() > 0) {
+                if ((int) transport.getDestination().getId() == destination) {
                     filtered.add(transport);
                 }
             });
             return filtered;
         } else if (destination == -1) {
-            //Fall filtern auf Abfahrtsort und Kapazität
+            //Fall filtern auf Abfahrtsort
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getOrigin().getId() == origin && transport.getCapacity() > 0) {
+                if ((int) transport.getOrigin().getId() == origin) {
                     filtered.add(transport);
                 }
             });
             return filtered;
         } else {
-            //Fall filtern auf Abfahrtsort und Ankunftsort sowie Kapazität
+            //Fall filtern auf Abfahrtsort und Ankunftsort
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getOrigin().getId() == origin && (int) transport.getDestination().getId() == destination && transport.getCapacity() > 0) {
+                if ((int) transport.getOrigin().getId() == origin && (int) transport.getDestination().getId() == destination) {
                     filtered.add(transport);
                 }
             });
             return filtered;
         }
-    }
-
-    /**
-     * Methode, die alle Transporte zurückgibt, die noch freie Kapazität haben die zu einem Preis kleiner gleich dem gegebenem verkauft werden.
-     *
-     * @param price Maximaler Preis nach dem Transporte gefiltert werden sollen
-     * @return      Liste aller Transporte, die das Suchkriterium erfüllen
-     */
-    public List<Transport> getTransportsFilteredByPrice(int price) {
-        List<Transport> filtered = new ArrayList<>();
-        this.transportRepository.getAll().forEach(transport -> {
-            if (transport instanceof Bus && ((Bus) transport).getCapacity() > 0 && price >= PRICE_BUS) {
-                filtered.add(transport);
-            } else if (transport instanceof Train && ((Train) transport).getSecondCapacity() > 0 && price >= PRICE_2ND_TRAIN ) {
-                filtered.add(transport);
-            } else if (transport instanceof Train && ((Train) transport).getFirstCapacity() > 0 && price >= PRICE_1ST_TRAIN ) {
-                filtered.add(transport);
-            }
-        });
-        return filtered;
     }
 
     /**
