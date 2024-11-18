@@ -49,6 +49,22 @@ public class RequestHandler {
         System.out.println(out);
     }
 
+    public void filterByLocation(int origin, int destination) {
+        StringBuilder out = new StringBuilder("-- Available transports from ");
+        if (origin == -1) {
+            out.append("any location to ");
+        } else {
+            out.append("location with ID ").append(origin).append(" to ");
+        }
+        if (destination == -1) {
+            out.append("any location ---\n");
+        } else {
+            out.append("location with ID ").append(destination).append(" ---\n");
+        }
+        bookingSystem.getTransportsFilteredByLocation(origin, destination).forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
+    }
+
     public void viewAllDestinations() {
         StringBuilder out = new StringBuilder("-- Available destinations --\n");
         bookingSystem.getLocations().forEach(location -> out.append(location.toString()).append("\n"));

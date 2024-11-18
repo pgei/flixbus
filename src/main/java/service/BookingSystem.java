@@ -3,6 +3,7 @@ package main.java.service;
 import main.java.model.*;
 import main.java.repository.IRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,6 +113,48 @@ public class BookingSystem {
      */
     public List<Transport> getAllTransports() {
         return this.transportRepository.getAll();
+    }
+
+    /**
+     * Methode, welche alle Transporte zurückgibt, welche an vorgegebenen Orten starten bzw. enden.
+     * Dabei ist es auch möglich nur mit dem Abfahrtsort bzw. Ankunftsort zu filtern.
+     *
+     * @param origin        ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
+     * @param destination   ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
+     * @return              Liste aller Transporte die Suchkriterien erfüllen
+     */
+    public List<Transport> getTransportsFilteredByLocation(int origin, int destination) {
+        if (origin == -1 && destination == -1) {
+            //Fall keine Filterkriterien
+            return this.transportRepository.getAll();
+        } else if (origin == -1) {
+            //Fall filtern auf Ankunftsort
+            List<Transport> filtered = new ArrayList<>();
+            this.transportRepository.getAll().forEach(transport -> {
+                if ((int) transport.getDestination().getId() == destination) {
+                    filtered.add(transport);
+                }
+            });
+            return filtered;
+        } else if (destination == -1) {
+            //Fall filtern auf Abfahrtsort
+            List<Transport> filtered = new ArrayList<>();
+            this.transportRepository.getAll().forEach(transport -> {
+                if ((int) transport.getOrigin().getId() == origin) {
+                    filtered.add(transport);
+                }
+            });
+            return filtered;
+        } else {
+            //Fall filtern auf Abfahrtsort und Ankunftsort
+            List<Transport> filtered = new ArrayList<>();
+            this.transportRepository.getAll().forEach(transport -> {
+                if ((int) transport.getOrigin().getId() == origin && (int) transport.getDestination().getId() == destination) {
+                    filtered.add(transport);
+                }
+            });
+            return filtered;
+        }
     }
 
     /**

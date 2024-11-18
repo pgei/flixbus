@@ -16,138 +16,168 @@ public class App {
     public App(RequestHandler requestHandler) {this.requestHandler = requestHandler;}
 
     public void start() {
-        System.out.println("Welcome to the Transport Booking System");
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
+        System.out.println("++ Welcome to the Transport Booking System! ++");
+        System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         while (running) {
             switch (this.person) {
                 case null -> {
-                    System.out.println("--------------------------");
-                    System.out.println("\nPlease select an option:");
-                    System.out.println("1. Register");
-                    System.out.println("2. Login");
-                    System.out.println("3. View transports");
-                    System.out.println("4. View destinations");
-                    System.out.println("5. Exit");
-                    System.out.println("--------------------------");
-                    int choice = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-
-
-                    switch (choice) {
-                        case 1:
-                            register(scanner);
-                            break;
-                        case 2:
-                            login(scanner);
-                            break;
-                        case 3:
-                            this.requestHandler.viewAllTransports();
-                            break;
-                        case 4:
-                            this.requestHandler.viewAllDestinations();
-                            break;
-                        case 5:
-                            running = false;
-                            System.out.println("Exiting the system. Goodbye!");
-                            break;
-                        default:
-                            System.out.println("Invalid choice. Please try again.");
-                    }
+                    running = startScreen(scanner);
                 }
                 case Costumer costumer -> {
-                    System.out.println("--------------------------");
-                    System.out.println("\nPlease select an option:");
-                    System.out.println("1. View transports");
-                    System.out.println("2. View destinations");
-                    System.out.println("3. View balance");
-                    System.out.println("4. Add balance");
-                    System.out.println("5. View all reserved tickets");
-                    System.out.println("6. Buy ticket");
-                    System.out.println("7. Cancel ticket");
-                    System.out.println("8. Logout");
-                    System.out.println("--------------------------");
-                    int choice = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-
-
-                    switch (choice) {
-                        case 1:
-                            this.requestHandler.viewAllTransports();
-                            break;
-                        case 2:
-                            this.requestHandler.viewAllDestinations();
-                            break;
-                        case 3:
-                            this.requestHandler.viewBalance((Costumer) this.person);
-                            break;
-                        case 4:
-                            this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
-                            break;
-                        case 5:
-                            this.requestHandler.viewTickets((Costumer) this.person);
-                            break;
-                        case 6:
-                            buyTicketRequest(scanner);
-                            break;
-                        case 7:
-                            this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
-                            break;
-                        case 8:
-                            this.person = null;
-                            System.out.println("Logout successful!");
-                            break;
-                        default:
-                            System.out.println("Invalid choice. Please try again.");
-                    }
+                    costumerScreen(scanner);
                 }
                 case Administrator administrator -> {
-                    System.out.println("--------------------------");
-                    System.out.println("\nPlease select an option:");
-                    System.out.println("1. View transports");
-                    System.out.println("2. View destinations");
-                    System.out.println("3. Add location");
-                    System.out.println("4. Add transport");
-                    System.out.println("5. Cancel transport");
-                    System.out.println("6. View all tickets booked on a specific transport");
-                    System.out.println("7. Logout");
-                    System.out.println("--------------------------");
-                    int choice = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-
-
-                    switch (choice) {
-                        case 1:
-                            this.requestHandler.viewAllTransports();
-                            break;
-                        case 2:
-                            this.requestHandler.viewAllDestinations();
-                            break;
-                        case 3:
-                            addLocation(scanner);
-                            break;
-                        case 4:
-                            addTransport(scanner);
-                            break;
-                        case 5:
-                            this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
-                            break;
-                        case 6:
-                            this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
-                            break;
-                        case 7:
-                            this.person = null;
-                            System.out.println("Logout successful!");
-                            break;
-                        default:
-                            System.out.println("Invalid choice. Please try again.");
-                    }
+                    administratorScreen(scanner);
                 }
                 default -> {
+                    System.out.println("Error: User of unexpected class "+this.person.getClass());
+                    System.out.println("Shutting down the system.");
+                    running = false;
                 }
             }
 
+        }
+    }
+
+    private boolean startScreen(Scanner scanner) {
+        System.out.println("\nPlease select an option:");
+        System.out.println("1. Register");
+        System.out.println("2. Login");
+        System.out.println("3. View transports");
+        System.out.println("4. Filter transports by location");
+        System.out.println("5. View destinations");
+        System.out.println("6. Exit");
+        System.out.println("++++++++++++++++++++++++++++");
+        try {int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    register(scanner);
+                    break;
+                case 2:
+                    login(scanner);
+                    break;
+                case 3:
+                    this.requestHandler.viewAllTransports();
+                    break;
+                case 4:
+                    filterTransportsByLocation(scanner);
+                    break;
+                case 5:
+                    this.requestHandler.viewAllDestinations();
+                    break;
+                case 6:
+                    System.out.println("Exiting the system. Goodbye!");
+                    return false;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    break;
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid choice. Please try again.");
+            return true;
+        }
+    }
+
+    private void costumerScreen(Scanner scanner) {
+        System.out.println("\nPlease select an option:");
+        System.out.println("1. View transports");
+        System.out.println("2. Filter transports by location");
+        System.out.println("3. View destinations");
+        System.out.println("4. View balance");
+        System.out.println("5. Add balance");
+        System.out.println("6. View all reserved tickets");
+        System.out.println("7. Buy ticket");
+        System.out.println("8. Cancel ticket");
+        System.out.println("9. Logout");
+        System.out.println("++++++++++++++++++++++++++++");
+        try {
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    this.requestHandler.viewAllTransports();
+                    break;
+                case 2:
+                    filterTransportsByLocation(scanner);
+                    break;
+                case 3:
+                    this.requestHandler.viewAllDestinations();
+                    break;
+                case 4:
+                    this.requestHandler.viewBalance((Costumer) this.person);
+                    break;
+                case 5:
+                    this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
+                    break;
+                case 6:
+                    this.requestHandler.viewTickets((Costumer) this.person);
+                    break;
+                case 7:
+                    buyTicketRequest(scanner);
+                    break;
+                case 8:
+                    this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
+                    break;
+                case 9:
+                    this.person = null;
+                    System.out.println("Logout successful!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid choice. Please try again.");
+        }
+    }
+
+    private void administratorScreen(Scanner scanner) {
+        System.out.println("\nPlease select an option:");
+        System.out.println("1. View transports");
+        System.out.println("2. Filter transports by location");
+        System.out.println("3. View destinations");
+        System.out.println("4. Add location");
+        System.out.println("5. Add transport");
+        System.out.println("6. Cancel transport");
+        System.out.println("7. View all tickets booked on a specific transport");
+        System.out.println("8. Logout");
+        System.out.println("++++++++++++++++++++++++++++");
+        try {
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
+                    this.requestHandler.viewAllTransports();
+                    break;
+                case 2:
+                    filterTransportsByLocation(scanner);
+                    break;
+                case 3:
+                    this.requestHandler.viewAllDestinations();
+                    break;
+                case 4:
+                    addLocation(scanner);
+                    break;
+                case 5:
+                    addTransport(scanner);
+                    break;
+                case 6:
+                    this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
+                    break;
+                case 7:
+                    this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
+                    break;
+                case 8:
+                    this.person = null;
+                    System.out.println("Logout successful!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid choice. Please try again.");
         }
     }
 
@@ -270,6 +300,15 @@ public class App {
         return Integer.parseInt(scanner.nextLine());
     }
 
+    public void filterTransportsByLocation(Scanner scanner) {
+        System.out.println("\n--- Filter transports by location ---");
+        System.out.println("Enter location ID for origin (type -1 to select all available locations as origin): ");
+        int origin = Integer.parseInt(scanner.nextLine());
+        System.out.println("Enter location ID for destination (type -1 to select all available locations as destination): ");
+        int destination = Integer.parseInt(scanner.nextLine());
+        this.requestHandler.filterByLocation(origin, destination);
+    }
+
     public static void main(String[] args) {
         IRepository<Person> personRepository = createInMemoryPersonRepository();
         IRepository<Transport> transportRepository = createInMemoryTransportRepository();
@@ -303,6 +342,7 @@ public class App {
         IRepository<Location> locationIRepository = new InMemoryRepository<>();
         locationIRepository.create(new Location(0, "Strada Mihail Kogălniceanu", "Cluj-Napoca"));
         locationIRepository.create(new Location(1, "Strada Mihail Kogălniceanu", "Brasov"));
+        locationIRepository.create(new Location(2, "Calea Clujului", "Oradea"));
         return locationIRepository;
     }
 
