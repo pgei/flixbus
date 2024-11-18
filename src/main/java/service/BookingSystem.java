@@ -416,7 +416,8 @@ public class BookingSystem {
                 Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
                 this.transportRepository.create(transport);
                 admin.getAllAdministeredTransports().add(transport);
-                this.personRepository.update(admin);
+                this.personRepository.update(admin)
+                ;
                 return true;
             }
         }
