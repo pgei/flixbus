@@ -35,6 +35,7 @@ public class Bus extends Transport {
      *
      * @return Anzahl noch freier Sitzplätze auf dem Bustransport
      */
+    @Override
     public int getCapacity() {return this.capacity;}
 
     /**

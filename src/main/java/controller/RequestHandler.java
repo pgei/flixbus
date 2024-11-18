@@ -44,13 +44,13 @@ public class RequestHandler {
     }
 
     public void viewAllTransports() {
-        StringBuilder out = new StringBuilder("-- Available transports --\n");
+        StringBuilder out = new StringBuilder("--- Available transports ---\n");
         bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }
 
     public void filterByLocation(int origin, int destination) {
-        StringBuilder out = new StringBuilder("-- Available transports from ");
+        StringBuilder out = new StringBuilder("--- Available transports from ");
         if (origin == -1) {
             out.append("any location to ");
         } else {
@@ -65,8 +65,14 @@ public class RequestHandler {
         System.out.println(out);
     }
 
+    public void filterByPrice(int price) {
+        StringBuilder out = new StringBuilder("--- Available transports with a maximum price of "+price+" Euro ---\n");
+        bookingSystem.getTransportsFilteredByPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
+    }
+
     public void viewAllDestinations() {
-        StringBuilder out = new StringBuilder("-- Available destinations --\n");
+        StringBuilder out = new StringBuilder("--- Available destinations ---\n");
         bookingSystem.getLocations().forEach(location -> out.append(location.toString()).append("\n"));
         System.out.println(out);
 
