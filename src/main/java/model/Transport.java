@@ -80,6 +80,13 @@ public abstract class Transport implements ID {
     public LocalTime getArrivalTime() {return this.sta;}
 
     /**
+     * Getter für gesamte verfügbare Kapazität des Transportes
+     *
+     * @return  Summe der freien Sitzplätze in allen Klassen
+     */
+    public abstract int getCapacity();
+
+    /**
      * Wiedergabe des Objektes als String zur besseren Lesbarkeit
      *
      * @return  String-Repräsentation des Transportes
@@ -87,7 +94,7 @@ public abstract class Transport implements ID {
     @Override
     public String toString() {
         return this.getClass() +"{ \n id = " + this.transportId+
-                "\n From " + this.origin.getStreet() +", " + this.origin.getCity() + "--> To " + this.destination.getStreet() +", " + this.destination.getCity() +
+                "\n From " + this.origin.getStreet() +", " + this.origin.getCity() + " --> To " + this.destination.getStreet() +", " + this.destination.getCity() +
                 "\n Date: " + this.date.toString() +
                 "\n Departure: " + this.std.toString() +", Arrival: " + this.sta.toString() + "}";
     }
