@@ -328,6 +328,21 @@ public class App {
         return Integer.parseInt(scanner.nextLine());
     }
 
+    public void sortByDate() {
+        System.out.println("\n--- Sort Transports by Date ---");
+        StringBuilder out = new StringBuilder("--- Transports sorted by date ---\n");
+        requestHandler.sortTransportsByDate().forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
+    }
+
+    public void sortByDuration() {
+        System.out.println("\n--- Sort Transports by Duration ---");
+        StringBuilder out = new StringBuilder("--- Transports sorted by duration (descending) ---\n");
+        requestHandler.sortTransportsByDuration().forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
+    }
+
+
     public static void main(String[] args) {
         IRepository<Person> personRepository = createInMemoryPersonRepository();
         IRepository<Transport> transportRepository = createInMemoryTransportRepository();

@@ -8,9 +8,10 @@ Die Nutzung der Anwendung erfordert zunächst erstmal eine Anmeldung, wodurch di
 
 - Anzeigen aller Reiseziele
 - Anzeigen aller angebotenen Transporte
-- Filtern der angebotenen Transporte nach den Kriterien Datum, Preis, (Abfahrts-/Ankunfts-)Ort, (Abfahrts-/Ankunfts-)Zeit
+- Sortieren aller Transporte nach Datum oder Fahrtdauer
+- Filtern der angebotenen Transporte nach den Kriterien Abfahrts- und/oder Ankunftsort oder maximaler Ticketpreis
 
-Kunden haben ein Guthaben und könne sich mit diesem Guthaben Plätze bei einem angebotenen Transport zwischen zwei Orten kaufen. Falls es noch verfügbare Plätze gibt und das Guthaben reicht, wird ein Platz auf dem Transport reserviert, ein Ticket erstellt und das Guthaben entsprechend reduziert. Eine Kunde kann ein bereits gekauftes Ticket aber wieder stonieren und entsprechend Guthaben zurückerstattet bekommen und sein Guthaben auch auffüllen. Soit ergeben sich folgende zusätzliche Funktionalitäten für den Kunden:
+Kunden haben ein Guthaben und könne sich mit diesem Guthaben Plätze bei einem angebotenen Transport zwischen zwei Orten kaufen. Falls es noch verfügbare Plätze gibt und das Guthaben reicht, wird ein Platz auf dem Transport reserviert, ein Ticket erstellt und das Guthaben entsprechend reduziert. Eine Kunde kann ein bereits gekauftes Ticket aber wieder stonieren und entsprechend Guthaben zurückerstattet bekommen und sein Guthaben auch auffüllen. Somit ergeben sich folgende zusätzliche Funktionalitäten für den Kunden:
 
 - Guthaben abfragen und aufladen
 - Ticket für Transport kaufen
@@ -28,6 +29,7 @@ Transporte können sowohl für Züge als auch Busse erstellt werden, der Untersc
 
 **Klassendiagramm:**
 
-![bild](https://github.com/user-attachments/assets/f577e249-2536-4fd4-9149-8ae8b871409d)
+![bild](https://github.com/user-attachments/assets/d6439761-b7dc-4296-88bb-0d998eb8eda5)
+
 
 
