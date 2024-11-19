@@ -392,7 +392,7 @@ public class BookingSystem {
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
         addBalance(costumer, (int) (ticket.getPrice()*0.9));
         this.personRepository.update(costumer);
-        this.ticketRepository.delete(ticket);
+        this.ticketRepository.delete(ticket.getId());
         return true;
     }
 
@@ -432,7 +432,7 @@ public class BookingSystem {
         if (((TrainTicket) ticket).getTicketClass() == 1) {
             transport.setFirstCapacity(transport.getFirstCapacity()+1);
             //Ticket abrufen, dass am neusten ist, wenn eines existiert, und an Stelle des entfernten Tickets schreiben
-            if (!mapTickets.isEmpty()) {
+            if (mapTickets.containsKey(Integer.parseInt("1" + transport.getFirstCapacity()))) {
                 TrainTicket changeticket = mapTickets.get(Integer.parseInt("1" + transport.getFirstCapacity()));
                 mapTickets.remove(changeticket.getSeat());
                 changeticket.setSeat(ticket.getSeat());
@@ -442,7 +442,7 @@ public class BookingSystem {
         } else if (((TrainTicket) ticket).getTicketClass() == 2) {
             transport.setSecondCapacity(transport.getSecondCapacity()+1);
             //Ticket abrufen, dass am neusten ist, wenn eines existiert, und an Stelle des entfernten Tickets schreiben
-            if (!mapTickets.isEmpty()) {
+            if (mapTickets.containsKey(Integer.parseInt("2" + transport.getSecondCapacity()))) {
                 TrainTicket changeticket = mapTickets.get(Integer.parseInt("2" + transport.getSecondCapacity()));
                 mapTickets.remove(changeticket.getSeat());
                 changeticket.setSeat(ticket.getSeat());
@@ -568,9 +568,9 @@ public class BookingSystem {
                 //Rückerstattung des vollen Ticketpreises
                 addBalance(ticket.getCostumer(),ticket.getPrice());
                 this.personRepository.update(ticket.getCostumer());
-                this.ticketRepository.delete(ticket);
+                this.ticketRepository.delete(ticket.getId());
             });
-            this.transportRepository.delete(transport);
+            this.transportRepository.delete(id);
             return true;
         } else return false;
     }
