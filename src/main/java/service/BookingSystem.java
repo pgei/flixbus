@@ -4,6 +4,7 @@ import main.java.model.*;
 import main.java.repository.IRepository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,10 +52,10 @@ public class BookingSystem {
     /**
      * Konstruktor, der neues Buchungssystem mit gegebenen Repositories aufsetzt
      *
-     * @param person        Repository das für Personen genutzt werden soll
-     * @param transport     Repository das für Transporte genutzt werden soll
-     * @param ticket        Repository das für Tickets genutzt werden soll
-     * @param location      Repository das für Orte genutzt werden soll
+     * @param person    Repository das für Personen genutzt werden soll
+     * @param transport Repository das für Transporte genutzt werden soll
+     * @param ticket    Repository das für Tickets genutzt werden soll
+     * @param location  Repository das für Orte genutzt werden soll
      */
     public BookingSystem(IRepository<Person> person, IRepository<Transport> transport, IRepository<Ticket> ticket, IRepository<Location> location) {
         this.personRepository = person;
@@ -70,11 +71,11 @@ public class BookingSystem {
      * Methode die einen neuen Anwenderaccount erstellt.
      * Dabei wird zuerst kontrolliert, ob die gegebene E-Mail-Adress einzigartig ist, da diese als Schlüssel im Repository genutzt wird
      *
-     * @param name      Anwendername
-     * @param email     E-Mail-Adresse, muss einzigartig sein da sie auch als Schlüssel genutzt werden soll
-     * @param password  Passwort das bei Login verwendet werden soll
-     * @param admin     Administrator-Objekt wird erstellt wenn wahr, sonst wird Kunde erstellt
-     * @return  Wahr wenn erstellen des Personen-Objektes erfolgreich wahr, sonst falsch
+     * @param name     Anwendername
+     * @param email    E-Mail-Adresse, muss einzigartig sein da sie auch als Schlüssel genutzt werden soll
+     * @param password Passwort das bei Login verwendet werden soll
+     * @param admin    Administrator-Objekt wird erstellt wenn wahr, sonst wird Kunde erstellt
+     * @return Wahr wenn erstellen des Personen-Objektes erfolgreich wahr, sonst falsch
      */
     public boolean registerUser(String name, String email, String password, boolean admin) {
         //First check that ID is unique
@@ -94,9 +95,9 @@ public class BookingSystem {
     /**
      * Methode die überprüft, ob Person im Repository existiert zu der gegebenen E-Mail-Adresse und, falls dem so ist, auch kontrolliert ob das Passwort zu der Person stimmt
      *
-     * @param email     E-Mail-Adresse die zur Person gehört (Schlüssel)
-     * @param password  Passwort der Person
-     * @return          Das Personen-Objekt, falls Passwort authentisch ist
+     * @param email    E-Mail-Adresse die zur Person gehört (Schlüssel)
+     * @param password Passwort der Person
+     * @return Das Personen-Objekt, falls Passwort authentisch ist
      */
     public Person checkLoginCredentials(String email, String password) {
         Person person = this.personRepository.get(email);
@@ -108,7 +109,7 @@ public class BookingSystem {
     /**
      * Methode die alle Transporte zurückgibt, die im Transport-Repository gespeichert sind
      *
-     * @return  Liste aller Transporte im Repository
+     * @return Liste aller Transporte im Repository
      */
     public List<Transport> getAllTransports() {
         return this.transportRepository.getAll();
@@ -118,9 +119,9 @@ public class BookingSystem {
      * Methode, die alle Transporte zurückgibt, welche an vorgegebenen Orten starten bzw. enden und noch freie Kapazität haben.
      * Dabei ist es auch möglich nur mit dem Abfahrtsort bzw. Ankunftsort zu filtern sowie, wenn keiner der beiden vorgegeben wurde, nur auf verfügbare Kapazität.
      *
-     * @param origin        ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
-     * @param destination   ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
-     * @return              Liste aller Transporte die Suchkriterien erfüllen
+     * @param origin      ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
+     * @param destination ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
+     * @return Liste aller Transporte die Suchkriterien erfüllen
      */
     public List<Transport> getTransportsFilteredByLocation(int origin, int destination) {
         if (origin == -1 && destination == -1) {
@@ -166,16 +167,16 @@ public class BookingSystem {
      * Methode, die alle Transporte zurückgibt, die noch freie Kapazität haben die zu einem Preis kleiner gleich dem gegebenem verkauft werden.
      *
      * @param price Maximaler Preis nach dem Transporte gefiltert werden sollen
-     * @return      Liste aller Transporte, die das Suchkriterium erfüllen
+     * @return Liste aller Transporte, die das Suchkriterium erfüllen
      */
     public List<Transport> getTransportsFilteredByPrice(int price) {
         List<Transport> filtered = new ArrayList<>();
         this.transportRepository.getAll().forEach(transport -> {
             if (transport instanceof Bus && transport.getCapacity() > 0 && price >= PRICE_BUS) {
                 filtered.add(transport);
-            } else if (transport instanceof Train && ((Train) transport).getSecondCapacity() > 0 && price >= PRICE_2ND_TRAIN ) {
+            } else if (transport instanceof Train && ((Train) transport).getSecondCapacity() > 0 && price >= PRICE_2ND_TRAIN) {
                 filtered.add(transport);
-            } else if (transport instanceof Train && ((Train) transport).getFirstCapacity() > 0 && price >= PRICE_1ST_TRAIN ) {
+            } else if (transport instanceof Train && ((Train) transport).getFirstCapacity() > 0 && price >= PRICE_1ST_TRAIN) {
                 filtered.add(transport);
             }
         });
@@ -185,7 +186,7 @@ public class BookingSystem {
     /**
      * Methode die alle Orte zurückgibt, die im Location-Repository gespeichert sind
      *
-     * @return  Liste aller Orte im Repository
+     * @return Liste aller Orte im Repository
      */
     public List<Location> getLocations() {
         return this.locationRepository.getAll();
@@ -194,8 +195,8 @@ public class BookingSystem {
     /**
      * Methode die alle Tickets zurückgibt, die ein spezifischer Kunde gekauft hat
      *
-     * @param costumer  Kunde, von dem alle Tickets zurückgegeben werden sollen
-     * @return          Liste aller Tickets, die von gegebenem Kunden gekauft wurden
+     * @param costumer Kunde, von dem alle Tickets zurückgegeben werden sollen
+     * @return Liste aller Tickets, die von gegebenem Kunden gekauft wurden
      */
     public List<Ticket> getALlTickets(Costumer costumer) {
         return costumer.getAllTickets();
@@ -204,8 +205,8 @@ public class BookingSystem {
     /**
      * Methode die das Guthaben eines gegebenen Kunden zurückgibt
      *
-     * @param costumer  Kunde, für den das Guthaben abgefragt werden soll
-     * @return          Guthaben auf dem Konto des Kunden
+     * @param costumer Kunde, für den das Guthaben abgefragt werden soll
+     * @return Guthaben auf dem Konto des Kunden
      */
     public int getBalance(Costumer costumer) {
         return costumer.getBalance();
@@ -214,22 +215,22 @@ public class BookingSystem {
     /**
      * Methode die das Guthaben eines Kunden um gegebenen Betrag erhöht
      *
-     * @param costumer  Kunde, dessen Guthaben erhöht werden soll
-     * @param money     Euro-Betrag um den das Guthaben steigen soll
+     * @param costumer Kunde, dessen Guthaben erhöht werden soll
+     * @param money    Euro-Betrag um den das Guthaben steigen soll
      */
     public void addBalance(Costumer costumer, int money) {
-        costumer.setBalance(costumer.getBalance()+money);
+        costumer.setBalance(costumer.getBalance() + money);
         this.personRepository.update(costumer);
     }
 
     /**
      * Methode die das Guthaben eines Kunden um gegebenen Betrag reduziert
      *
-     * @param costumer  Kunde, dessen Guthaben reduziert werden soll
-     * @param money     Euro-Betrag mit dem das Guthaben belastet werden soll
+     * @param costumer Kunde, dessen Guthaben reduziert werden soll
+     * @param money    Euro-Betrag mit dem das Guthaben belastet werden soll
      */
     public void reduceBalance(Costumer costumer, int money) {
-        costumer.setBalance(costumer.getBalance()-money);
+        costumer.setBalance(costumer.getBalance() - money);
         this.personRepository.update(costumer);
     }
 
@@ -240,13 +241,13 @@ public class BookingSystem {
      *
      * <li>Bus: die Sitzplätze sind nach der Anzahl an Sitzplätzen durchnummeriert und werden in absteigender Reihenfolge vergeben <li/>
      * <li>Zug: die Sitzplätze sind wie bei Bus durchnummeriert für jede Klasse, um die Klasse zu kennzeichen wird der Sitznummer eine 1 respektive 2 voraus gestellt<li/>
-     *
+     * <p>
      * Beispiel: wenn die erste Klasse im Zug 5 Sitzplätze hat, dann wird der erste vergebene Sitzplatz 15 sein und der letzte 11
      *
-     * @param costumer      Kunde der das Ticket buchen will
-     * @param transportid   ID des Transports, auf dem ein Ticket reserviert werden soll
-     * @param ticketclass   Klasse, in der ein Ticket reserviert werden soll, bei Bustransporten wird dies ignoriert da Busse nur eine Klasse haben
-     * @return              Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
+     * @param costumer    Kunde der das Ticket buchen will
+     * @param transportid ID des Transports, auf dem ein Ticket reserviert werden soll
+     * @param ticketclass Klasse, in der ein Ticket reserviert werden soll, bei Bustransporten wird dies ignoriert da Busse nur eine Klasse haben
+     * @return Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
      */
     public boolean createTicket(Costumer costumer, int transportid, int ticketclass) {
         Transport transport = this.transportRepository.get(transportid);
@@ -274,9 +275,9 @@ public class BookingSystem {
      * Methode die ein Ticket für einen Bustransport erstellt, falls dies möglich ist.
      * Dabei wird zuerst überprüft, ob es noch freie Sitzplätze auf dem Transport gibt, sowie ob der Kunde noch genug Guthaben hat, um das Ticket zu bezahlen.
      *
-     * @param costumer  Kunde der das Ticket buchen will
-     * @param bus       Bustransport auf dem das Ticket gültig sein soll
-     * @return          Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
+     * @param costumer Kunde der das Ticket buchen will
+     * @param bus      Bustransport auf dem das Ticket gültig sein soll
+     * @return Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
      */
     private boolean addBusTicket(Costumer costumer, Bus bus) {
         if ((bus.getCapacity() > 0 && costumer.getBalance() >= PRICE_BUS)) {
@@ -304,9 +305,9 @@ public class BookingSystem {
      * Methode die ein 1. Klasse-Ticket für einen Zugtransport erstellt, falls dies möglich ist.
      * Dabei wird zuerst überprüft, ob es noch freie Sitzplätze auf dem Transport in der 1. Klasse gibt, sowie ob der Kunde noch genug Guthaben hat, um das Ticket zu bezahlen.
      *
-     * @param costumer  Kunde der das Ticket buchen will
-     * @param train     Zugtransport auf dem das Ticket gültig sein soll
-     * @return          Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
+     * @param costumer Kunde der das Ticket buchen will
+     * @param train    Zugtransport auf dem das Ticket gültig sein soll
+     * @return Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
      */
     private boolean addFirstClassTrainTicket(Costumer costumer, Train train) {
         if (train.getFirstCapacity() > 0 && costumer.getBalance() >= PRICE_1ST_TRAIN) {
@@ -334,9 +335,9 @@ public class BookingSystem {
      * Methode die ein 2. Klasse-Ticket für einen Zugtransport erstellt, falls dies möglich ist.
      * Dabei wird zuerst überprüft, ob es noch freie Sitzplätze auf dem Transport in der 2. Klasse gibt, sowie ob der Kunde noch genug Guthaben hat, um das Ticket zu bezahlen.
      *
-     * @param costumer  Kunde der das Ticket buchen will
-     * @param train     Zugtransport auf dem das Ticket gültig sein soll
-     * @return          Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
+     * @param costumer Kunde der das Ticket buchen will
+     * @param train    Zugtransport auf dem das Ticket gültig sein soll
+     * @return Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
      */
     private boolean addSecondClassTrainTicket(Costumer costumer, Train train) {
         if (train.getSecondCapacity() > 0 && costumer.getBalance() >= PRICE_2ND_TRAIN) {
@@ -368,9 +369,9 @@ public class BookingSystem {
      * Um die Reihenfolge der Vergabe der Sitzplätze bei Buchung neuer Tickets nicht durcheinanderzubringen, wird das neuste Ticket (also kleinste Sitznummer) an die Stelle des gelöschten Tickets geschrieben.
      * Dh. der Sitzplatz des neusten Tickets ändert sich zu dem Sitzplatz des entfernten Tickets.
      *
-     * @param costumer  Kunde der ein Ticket entfernen will
-     * @param id        Ticket-Nummer des Tickets das entfernt werden soll
-     * @return          Wahr, falls Ticket erfolgreich gelöscht wurde, sonst falsch
+     * @param costumer Kunde der ein Ticket entfernen will
+     * @param id       Ticket-Nummer des Tickets das entfernt werden soll
+     * @return Wahr, falls Ticket erfolgreich gelöscht wurde, sonst falsch
      */
     public boolean removeTicket(Costumer costumer, int id) {
         Ticket ticket = this.ticketRepository.get(id);
@@ -378,7 +379,7 @@ public class BookingSystem {
             return false;
         }
         //Kontrolle, ob Ticket wirklich dem Kunden gehört
-        if (ticket.getCostumer().getId() != costumer.getId() ) {
+        if (ticket.getCostumer().getId() != costumer.getId()) {
             return false;
         }
         //Transport aktualisieren
@@ -390,7 +391,7 @@ public class BookingSystem {
         //Kunde aktualisieren
         costumer.getAllTickets().remove(ticket);
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
-        addBalance(costumer, (int) (ticket.getPrice()*0.9));
+        addBalance(costumer, (int) (ticket.getPrice() * 0.9));
         this.personRepository.update(costumer);
         this.ticketRepository.delete(ticket);
         return true;
@@ -400,20 +401,20 @@ public class BookingSystem {
      * Methode, die ein gegebenes Ticket von einem Bustransport entfernt.
      * Wenn weitere Tickets auf dem Transport existieren, wird das neueste abgerufen und an Stelle des entfernten Tickets geschrieben.
      *
-     * @param ticket    Ticket das entfernt werden soll
+     * @param ticket Ticket das entfernt werden soll
      */
     private void removeTicketFromBusTransport(Ticket ticket) {
         Bus transport = (Bus) ticket.getTransport();
         HashMap<Integer, BusTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
-        transport.setCapacity(transport.getCapacity()+1);
+        transport.setCapacity(transport.getCapacity() + 1);
         //Ticket abrufen, dass am neusten ist, wenn eines existiert, und an Stelle des entfernten Tickets schreiben
         if (!mapTickets.isEmpty()) {
             BusTicket changeticket = mapTickets.get(transport.getCapacity());
             mapTickets.remove(changeticket.getSeat());
             changeticket.setSeat(ticket.getSeat());
-            mapTickets.put(ticket.getSeat(),changeticket);
+            mapTickets.put(ticket.getSeat(), changeticket);
         }
         this.transportRepository.update(transport);
     }
@@ -422,7 +423,7 @@ public class BookingSystem {
      * Methode, die ein gegebenes Ticket von einem Zugtransport entfernt.
      * Wenn weitere Tickets auf dem Transport existieren, wird das neueste der aktuellen Klasse abgerufen und an Stelle des entfernten Tickets geschrieben.
      *
-     * @param ticket    Ticket das entfernt werden soll
+     * @param ticket Ticket das entfernt werden soll
      */
     private void removeTicketFromTrainTransport(Ticket ticket) {
         Train transport = (Train) ticket.getTransport();
@@ -430,7 +431,7 @@ public class BookingSystem {
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
         if (((TrainTicket) ticket).getTicketClass() == 1) {
-            transport.setFirstCapacity(transport.getFirstCapacity()+1);
+            transport.setFirstCapacity(transport.getFirstCapacity() + 1);
             //Ticket abrufen, dass am neusten ist, wenn eines existiert, und an Stelle des entfernten Tickets schreiben
             if (!mapTickets.isEmpty()) {
                 TrainTicket changeticket = mapTickets.get(Integer.parseInt("1" + transport.getFirstCapacity()));
@@ -440,7 +441,7 @@ public class BookingSystem {
             }
             this.transportRepository.update(transport);
         } else if (((TrainTicket) ticket).getTicketClass() == 2) {
-            transport.setSecondCapacity(transport.getSecondCapacity()+1);
+            transport.setSecondCapacity(transport.getSecondCapacity() + 1);
             //Ticket abrufen, dass am neusten ist, wenn eines existiert, und an Stelle des entfernten Tickets schreiben
             if (!mapTickets.isEmpty()) {
                 TrainTicket changeticket = mapTickets.get(Integer.parseInt("2" + transport.getSecondCapacity()));
@@ -455,10 +456,10 @@ public class BookingSystem {
     /**
      * Methode um einen neuen Ort zu erstellen und ins Repository zu schreiben, dabei wird zuerst kontrolliert, ob es wirklich ein Administrator ist der die Methode ausführt
      *
-     * @param admin     Administrator-Objekt, das die Aktion ausführen will, stellt sicher, dass nur Administratoren diese Methode ausführen können
-     * @param street    Straße + eventuell Hausnummer des Ortes
-     * @param city      Stadt, in der der Ort liegt
-     * @return          Wahr, falls Ort erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @param admin  Administrator-Objekt, das die Aktion ausführen will, stellt sicher, dass nur Administratoren diese Methode ausführen können
+     * @param street Straße + eventuell Hausnummer des Ortes
+     * @param city   Stadt, in der der Ort liegt
+     * @return Wahr, falls Ort erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean createLocation(Administrator admin, String street, String city) {
         if (admin.isAdmin()) {
@@ -488,7 +489,7 @@ public class BookingSystem {
      * @param houra         Stunde, zu der der Transport endet
      * @param mina          Minute, zu der der Transport endet
      * @param capacity      Anzahl der Sitzplätze die der Bus hat
-     * @return              Wahr, falls Bustransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @return Wahr, falls Bustransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
         if (admin.isAdmin()) {
@@ -514,19 +515,19 @@ public class BookingSystem {
      * Methode um einen Zugtransport zu erstellen und ins Repository zu schreiben, dabei wird zuerst kontrolliert, ob es wirklich ein Administrator ist, der die Methode ausführt.
      * Zusätzlich wird geschaut ob Orte mit den gegebenen IDs wirklich existieren.
      *
-     * @param admin             Administrator der die Methode ausführen möchte
-     * @param originid          ID des Ortes an dem der Transport starten soll
-     * @param destinationid     ID des Ortes an dem der Transport enden soll
-     * @param year              Jahr in dem der Transport stattfindet
-     * @param month             Monat (als Zahl) in dem der Transport stattfindet
-     * @param day               Tag (als Zahl) an dem der Transport stattfindet
-     * @param hourd             Stunde, zu der der Transport startet
-     * @param mind              Minute, zu der der Transport startet
-     * @param houra             Stunde, zu der der Transport endet
-     * @param mina              Minute, zu der der Transport endet
-     * @param firstcapacity     Anzahl der Sitzplätze die der Zug in der 1. Klasse hat
-     * @param secondcapacity    Anzahl der Sitzplätze die der Zug in der 2. Klasse hat
-     * @return                  Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @param admin          Administrator der die Methode ausführen möchte
+     * @param originid       ID des Ortes an dem der Transport starten soll
+     * @param destinationid  ID des Ortes an dem der Transport enden soll
+     * @param year           Jahr in dem der Transport stattfindet
+     * @param month          Monat (als Zahl) in dem der Transport stattfindet
+     * @param day            Tag (als Zahl) an dem der Transport stattfindet
+     * @param hourd          Stunde, zu der der Transport startet
+     * @param mind           Minute, zu der der Transport startet
+     * @param houra          Stunde, zu der der Transport endet
+     * @param mina           Minute, zu der der Transport endet
+     * @param firstcapacity  Anzahl der Sitzplätze die der Zug in der 1. Klasse hat
+     * @param secondcapacity Anzahl der Sitzplätze die der Zug in der 2. Klasse hat
+     * @return Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean createTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
         if (admin.isAdmin()) {
@@ -554,19 +555,19 @@ public class BookingSystem {
      *
      * @param admin Administrator der die Methode ausführen möchte
      * @param id    ID des Transports der entfernt werden soll
-     * @return      Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @return Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean removeTransport(Administrator admin, int id) {
         Transport transport = this.transportRepository.get(id);
         if (transport == null) {
             return false;
-        } else if (admin.getAllAdministeredTransports().contains(transport)){
+        } else if (admin.getAllAdministeredTransports().contains(transport)) {
             admin.getAllAdministeredTransports().remove(transport);
             this.personRepository.update(admin);
             getAllTransportTickets(admin, id).forEach(ticket -> {
                 ticket.getCostumer().getAllTickets().remove(ticket);
                 //Rückerstattung des vollen Ticketpreises
-                addBalance(ticket.getCostumer(),ticket.getPrice());
+                addBalance(ticket.getCostumer(), ticket.getPrice());
                 this.personRepository.update(ticket.getCostumer());
                 this.ticketRepository.delete(ticket);
             });
@@ -581,7 +582,7 @@ public class BookingSystem {
      *
      * @param admin Administrator der die Methode ausführen möchte
      * @param id    ID des Transports für den alle Tickets angezeigt werden sollen
-     * @return      Liste die alle Tickets enthält, die zum Zeitpunkt des Methodenaufrufs für gegebenen Transport reserviert sind
+     * @return Liste die alle Tickets enthält, die zum Zeitpunkt des Methodenaufrufs für gegebenen Transport reserviert sind
      */
     public List<Ticket> getAllTransportTickets(Administrator admin, int id) {
         if (admin.isAdmin()) {
@@ -593,5 +594,30 @@ public class BookingSystem {
             };
         }
         return null;
+    }
+
+    /**
+     * Gibt eine Liste von Transporten zurück, sortiert nach Datum in aufsteigender Reihenfolge.
+     *
+     * @return eine Liste von Transportobjekten, sortiert nach dem Abfahrtsdatum.
+     */
+    public List<Transport> getTransportsSortedByDate() {
+        return transportRepository.getAll().stream()
+                .sorted(Comparator.comparing(Transport::getDate))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gibt eine Liste von Transporten zurück, sortiert nach Dauer in aufsteigender Reihenfolge.
+     * Die Dauer wird als die Zeitdifferenz zwischen Abfahrts- und Ankunftszeit berechnet.
+     *
+     * @return eine Liste von Transportobjekten, sortiert nach der Dauer der Fahrt.
+     */
+    public List<Transport> getTransportsSortedByDuration() {
+        return transportRepository.getAll().stream()
+                .sorted((t1, t2) -> Long.compare(
+                        java.time.Duration.between(t1.getDepartureTime(), t1.getArrivalTime()).toMinutes(),
+                        java.time.Duration.between(t2.getDepartureTime(), t2.getArrivalTime()).toMinutes()
+                )).collect(Collectors.toList());
     }
 }
