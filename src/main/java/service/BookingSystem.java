@@ -3,10 +3,7 @@ package main.java.service;
 import main.java.model.*;
 import main.java.repository.IRepository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -619,5 +616,31 @@ public class BookingSystem {
                         java.time.Duration.between(t1.getDepartureTime(), t1.getArrivalTime()).toMinutes(),
                         java.time.Duration.between(t2.getDepartureTime(), t2.getArrivalTime()).toMinutes()
                 )).collect(Collectors.toList());
+    }
+
+    /**
+     * Gibt eine Liste der Orte zurück, sortiert nach der Anzahl der Tickets, die für Transporte gebucht wurden,
+     * die an diesen Orten starten oder enden.
+     *
+     * @return eine Liste von Orten, sortiert nach der Gesamtanzahl der gebuchten Tickets.
+     */
+    public List<Location> getLocationsByTotalTickets() {
+        Map<Location, Long> locationTicketCountMap = new HashMap<>();
+
+        // Zählt die Tickets für alle Transporte, die an einem Ort starten oder enden
+        for (Transport transport : transportRepository.getAll()) {
+            long ticketCount = ticketRepository.getAll().stream()
+                    .filter(ticket -> ticket.getId() == transport.getId())
+                    .count();
+
+            locationTicketCountMap.merge(transport.getOrigin(), ticketCount, Long::sum);
+            locationTicketCountMap.merge(transport.getDestination(), ticketCount, Long::sum);
+        }
+
+        // Sortiert die Orte nach der Gesamtanzahl der Tickets
+        return locationTicketCountMap.entrySet().stream()
+                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 }

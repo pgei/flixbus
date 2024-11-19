@@ -299,4 +299,17 @@ public class RequestHandler {
             System.out.println("Cannot show tickets, either the transport ID is wrong or you are not an administrator.");
         }
     }
+
+    /**
+     * Zeigt eine Liste von Orten an, sortiert nach der Anzahl der gebuchten Tickets,
+     * die für Transporte an diesen Orten gemacht wurden.
+     */
+    public void showLocationsByTotalTickets() {
+        StringBuilder out = new StringBuilder("--- Locations sorted by total tickets ---\n");
+        bookingSystem.getLocationsByTotalTickets().forEach(location ->
+                out.append(location.toString()).append("\n")
+        );
+        System.out.println(out);
+    }
+
 }

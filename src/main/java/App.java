@@ -8,13 +8,26 @@ import main.java.service.BookingSystem;
 
 import java.util.Scanner;
 
+/**
+ * Die Klasse App stellt die Benutzeroberfläche für das Transport-Buchungssystem bereit.
+ * Sie interagiert mit dem Benutzer über die Konsole und bietet Funktionen wie Registrierung,
+ * Anmeldung, Ansehen und Filtern von Transporten sowie das Verwalten von Tickets und Orten.
+ */
 public class App {
 
     private final RequestHandler requestHandler;
     private Person person;
 
+    /**
+     * Konstruktor der Klasse App.
+     *
+     * @param requestHandler der RequestHandler, der die Anfragen der App bearbeitet.
+     */
     public App(RequestHandler requestHandler) {this.requestHandler = requestHandler;}
 
+    /**
+     * Startet die Anwendung und zeigt die Hauptmenüs basierend auf dem Benutzerstatus an.
+     */
     public void start() {
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println("++ Welcome to the Transport Booking System! ++");
@@ -37,6 +50,12 @@ public class App {
         }
     }
 
+    /**
+     * Zeigt den Startbildschirm für Gäste an, um Optionen wie Registrierung und Anmeldung auszuwählen.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return true, wenn die App weiterhin läuft, false, wenn sie beendet werden soll.
+     */
     private boolean startScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
@@ -82,6 +101,11 @@ public class App {
         }
     }
 
+    /**
+     * Zeigt das Menü für Kunden an, nachdem sie sich angemeldet haben.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     private void costumerScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
@@ -138,6 +162,11 @@ public class App {
         }
     }
 
+    /**
+     * Zeigt das Menü für Administratoren an, nachdem sie sich angemeldet haben.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     private void administratorScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
@@ -190,6 +219,11 @@ public class App {
         }
     }
 
+    /**
+     * Registriert einen neuen Benutzer, entweder als Kunde oder als Administrator.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     private void register(Scanner scanner) {
         System.out.println("\n--- Register ---");
         System.out.println("Enter username: ");
@@ -213,6 +247,11 @@ public class App {
         }
     }
 
+    /**
+     * Meldet einen Benutzer an, basierend auf der eingegebenen E-Mail und dem Passwort.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     private void login(Scanner scanner) {
         System.out.println("\n--- Login ---");
         System.out.println("Enter email: ");
@@ -222,6 +261,12 @@ public class App {
         this.person = requestHandler.login(email, password);
     }
 
+    /**
+     * Liest den Betrag, der dem Konto des Benutzers hinzugefügt werden soll.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return der Betrag in Euro, der hinzugefügt werden soll.
+     */
     private int readBalanceAddition(Scanner scanner) {
         System.out.println("\n--- Add balance ---");
         System.out.println("Enter Euros to add to your account balance: ");
@@ -229,6 +274,20 @@ public class App {
         return Integer.parseInt(money);
     }
 
+    /**
+     * Prompts the user to buy a ticket for a specified transport. The user is asked to input the transport ID
+     * and the desired ticket class (1 or 2). The method validates the ticket class and forwards the request
+     * to the {@link RequestHandler} for processing.
+     *
+     * <p>Displays available options based on the type of transport:
+     * <ul>
+     *     <li>For Bus: Only 2nd class is available for 20 Euros.</li>
+     *     <li>For Train: Options include 1st class for 50 Euros and 2nd class for 15 Euros.</li>
+     * </ul>
+     *
+     * @param scanner the {@link Scanner} object used for reading user input
+     * @throws NumberFormatException if the user inputs invalid numerical data
+     */
     public void buyTicketRequest(Scanner scanner) {
         System.out.println("\n--- Buy ticket ---");
         System.out.println("Enter ID for transport on which you would like to reserve a ticket: ");
@@ -249,12 +308,23 @@ public class App {
         }
     }
 
+    /**
+     * Liest die Daten eines Tickets, das der Benutzer stornieren möchte.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return die Ticketnummer des zu stornierenden Tickets.
+     */
     public int readCancelTicketRequest(Scanner scanner) {
         System.out.println("\n--- Cancel ticket ---");
         System.out.println("Enter ticket number of ticket you would like to cancel: ");
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Fügt einen neuen Ort in das System ein.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     public void addLocation(Scanner scanner) {
         System.out.println("\n--- Add location ---");
         System.out.println("Enter street address of location: ");
@@ -264,6 +334,11 @@ public class App {
         this.requestHandler.addLocation((Administrator) this.person, street, city);
     }
 
+    /**
+     * Fügt einen neuen Transport in das System ein.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     public void addTransport(Scanner scanner) {
         System.out.println("\n--- Add transport ---");
         System.out.println("Enter location ID of origin: ");
@@ -301,18 +376,35 @@ public class App {
         }
     }
 
+    /**
+     * Liest die Transport-ID eines Transports, der storniert werden soll.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return die Transport-ID des zu stornierenden Transports.
+     */
     public int readCancelTransportRequest(Scanner scanner) {
         System.out.println("\n--- Cancel transport ---");
         System.out.println("Enter transport id of transport you would like to cancel: ");
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Liest die Transport-ID eines Transports, für den alle gebuchten Tickets angezeigt werden sollen.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return die Transport-ID des Transports.
+     */
     public int readTransportId(Scanner scanner) {
         System.out.println("\n--- View all tickets booked on a specific transport ---");
         System.out.println("Enter transport ID of transport you would like to view all tickets of: ");
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Filtert Transporte basierend auf einem angegebenen Ursprungs- und Zielort.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     */
     public void filterTransportsByLocation(Scanner scanner) {
         System.out.println("\n--- Filter transports by location ---");
         System.out.println("Enter location ID for origin (type -1 to select all available locations as origin): ");
@@ -322,12 +414,21 @@ public class App {
         this.requestHandler.filterByLocation(origin, destination);
     }
 
+    /**
+     * Liest den maximalen Ticketpreis zum Filtern der Transporte.
+     *
+     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return der maximale Ticketpreis in Euro.
+     */
     public int readFilterByPrice(Scanner scanner) {
         System.out.println("\n--- Filter transports by price ---");
         System.out.println("Enter maximum ticket price in Euro:");
         return Integer.parseInt(scanner.nextLine());
     }
 
+    /**
+     * Sortiert Transporte nach Datum und zeigt sie an.
+     */
     public void sortByDate() {
         System.out.println("\n--- Sort Transports by Date ---");
         StringBuilder out = new StringBuilder("--- Transports sorted by date ---\n");
@@ -335,6 +436,9 @@ public class App {
         System.out.println(out);
     }
 
+    /**
+     * Sortiert Transporte nach Dauer in absteigender Reihenfolge und zeigt sie an.
+     */
     public void sortByDuration() {
         System.out.println("\n--- Sort Transports by Duration ---");
         StringBuilder out = new StringBuilder("--- Transports sorted by duration (descending) ---\n");
@@ -342,7 +446,18 @@ public class App {
         System.out.println(out);
     }
 
+    /**
+     * Zeigt Orte basierend auf der Gesamtanzahl der gebuchten Tickets an.
+     */
+    public void showLocationsSortedByTickets() {
+        requestHandler.showLocationsByTotalTickets();
+    }
 
+    /**
+     * Die Hauptmethode zum Starten der App.
+     *
+     * @param args die Argumente der Kommandozeile.
+     */
     public static void main(String[] args) {
         IRepository<Person> personRepository = createInMemoryPersonRepository();
         IRepository<Transport> transportRepository = createInMemoryTransportRepository();
@@ -355,6 +470,11 @@ public class App {
         application.start();
     }
 
+    /**
+     * Erstellt ein In-Memory-Repository für Personen.
+     *
+     * @return ein Repository für Personen.
+     */
     private static IRepository<Person> createInMemoryPersonRepository() {
         IRepository<Person> personIRepository = new InMemoryRepository<>();
         personIRepository.create(new Administrator("Philipp", "philipp@test.de", "test"));
@@ -362,16 +482,31 @@ public class App {
         return personIRepository;
     }
 
+    /**
+     * Erstellt ein In-Memory-Repository für Transporte.
+     *
+     * @return ein Repository für Transporte.
+     */
     private static IRepository<Transport> createInMemoryTransportRepository() {
         IRepository<Transport> transportIRepository = new InMemoryRepository<>();
         return transportIRepository;
     }
 
+    /**
+     * Erstellt ein In-Memory-Repository für Tickets.
+     *
+     * @return ein Repository für Tickets.
+     */
     private static IRepository<Ticket> createInMemoryTicketRepository() {
         IRepository<Ticket> ticketIRepository = new InMemoryRepository<>();
         return ticketIRepository;
     }
 
+    /**
+     * Erstellt ein In-Memory-Repository für Orte.
+     *
+     * @return ein Repository für Orte.
+     */
     private static IRepository<Location> createInMemoryLocationRepository() {
         IRepository<Location> locationIRepository = new InMemoryRepository<>();
         locationIRepository.create(new Location(0, "Strada Mihail Kogălniceanu", "Cluj-Napoca"));
