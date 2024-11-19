@@ -89,9 +89,7 @@ public class RequestHandler {
     public void viewTickets(Costumer costumer) {
         List<Ticket> list = bookingSystem.getALlTickets(costumer);
         System.out.println("Here is a list of all tickets you have reserved at this moment:\n\n");
-        list.forEach(ticket -> {
-            System.out.println(ticket.toString());
-        });
+        list.forEach(ticket -> System.out.println(ticket.toString()));
     }
 
     public void buyTicket(Costumer costumer, int transportid, int ticketclass) {
@@ -152,9 +150,7 @@ public class RequestHandler {
         List<Ticket> list = bookingSystem.getAllTransportTickets(admin, transportid);
         if (list != null) {
             System.out.println("Here is a list of all tickets reserved on transport with ID "+ transportid +":\n\n");
-            list.forEach(ticket -> {
-                System.out.println(ticket.toStringReducedView());
-            });
+            list.forEach(ticket -> System.out.println(ticket.toStringReducedView()));
         } else {
             System.out.println("Cannot show tickets, either the transport ID is wrong or you are not an administrator.");
         }

@@ -24,15 +24,9 @@ public class App {
 
         while (running) {
             switch (this.person) {
-                case null -> {
-                    running = startScreen(scanner);
-                }
-                case Costumer costumer -> {
-                    costumerScreen(scanner);
-                }
-                case Administrator administrator -> {
-                    administratorScreen(scanner);
-                }
+                case null -> running = startScreen(scanner);
+                case Costumer costumer -> costumerScreen(scanner);
+                case Administrator administrator -> administratorScreen(scanner);
                 default -> {
                     System.out.println("Error: User of unexpected class "+this.person.getClass());
                     System.out.println("Shutting down the system.");
@@ -236,9 +230,13 @@ public class App {
         System.out.println("\n--- Buy ticket ---");
         System.out.println("Enter ID for transport on which you would like to reserve a ticket: ");
         int transportid = Integer.parseInt(scanner.nextLine());
-        System.out.println("-------------------------\n" +
-                "For Bus you have the following class options: \n\t - 2nd for 20 Euro\n" +
-                "For Train you have the following class options: \n\t - 1st for 50 Euro\n\t - 2nd for 15 Euro");
+        System.out.println("""
+                -------------------------
+                For Bus you have the following class options:\s
+                \t - 2nd for 20 Euro
+                For Train you have the following class options:\s
+                \t - 1st for 50 Euro
+                \t - 2nd for 15 Euro""");
         System.out.println("Enter class you would like to book (1/2): ");
         int ticketclass = Integer.parseInt(scanner.nextLine());
         if (ticketclass == 1 || ticketclass == 2) {
