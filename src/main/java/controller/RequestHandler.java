@@ -44,7 +44,7 @@ public class RequestHandler {
     }
 
     public void viewAllTransports() {
-        StringBuilder out = new StringBuilder("--- Available transports ---\n");
+        StringBuilder out = new StringBuilder("--- View transports ---\n");
         bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }

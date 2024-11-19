@@ -38,7 +38,8 @@ public class App {
     }
 
     private boolean startScreen(Scanner scanner) {
-        System.out.println("\nPlease select an option:");
+        System.out.println("\n++++++++++++++++++++++++++++");
+        System.out.println("Please select an option:");
         System.out.println("1. Register");
         System.out.println("2. Login");
         System.out.println("3. View transports");
@@ -82,7 +83,8 @@ public class App {
     }
 
     private void costumerScreen(Scanner scanner) {
-        System.out.println("\nPlease select an option:");
+        System.out.println("\n++++++++++++++++++++++++++++");
+        System.out.println("Please select an option:");
         System.out.println("1. View transports");
         System.out.println("2. Filter transports by location");
         System.out.println("3. Filter transports by price");
@@ -137,7 +139,8 @@ public class App {
     }
 
     private void administratorScreen(Scanner scanner) {
-        System.out.println("\nPlease select an option:");
+        System.out.println("\n++++++++++++++++++++++++++++");
+        System.out.println("Please select an option:");
         System.out.println("1. View transports");
         System.out.println("2. Filter transports by location");
         System.out.println("3. Filter transports by price");
