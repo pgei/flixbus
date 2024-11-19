@@ -49,8 +49,9 @@ public class App {
         System.out.println("2. Login");
         System.out.println("3. View transports");
         System.out.println("4. Filter transports by location");
-        System.out.println("5. View destinations");
-        System.out.println("6. Exit");
+        System.out.println("5. Filter transports by price");
+        System.out.println("6. View destinations");
+        System.out.println("7. Exit");
         System.out.println("++++++++++++++++++++++++++++");
         try {int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
@@ -67,9 +68,12 @@ public class App {
                     filterTransportsByLocation(scanner);
                     break;
                 case 5:
-                    this.requestHandler.viewAllDestinations();
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
                     break;
                 case 6:
+                    this.requestHandler.viewAllDestinations();
+                    break;
+                case 7:
                     System.out.println("Exiting the system. Goodbye!");
                     return false;
                 default:
@@ -87,13 +91,14 @@ public class App {
         System.out.println("\nPlease select an option:");
         System.out.println("1. View transports");
         System.out.println("2. Filter transports by location");
-        System.out.println("3. View destinations");
-        System.out.println("4. View balance");
-        System.out.println("5. Add balance");
-        System.out.println("6. View all reserved tickets");
-        System.out.println("7. Buy ticket");
-        System.out.println("8. Cancel ticket");
-        System.out.println("9. Logout");
+        System.out.println("3. Filter transports by price");
+        System.out.println("4. View destinations");
+        System.out.println("5. View balance");
+        System.out.println("6. Add balance");
+        System.out.println("7. View all reserved tickets");
+        System.out.println("8. Buy ticket");
+        System.out.println("9. Cancel ticket");
+        System.out.println("10. Logout");
         System.out.println("++++++++++++++++++++++++++++");
         try {
             int choice = Integer.parseInt(scanner.nextLine());
@@ -105,24 +110,27 @@ public class App {
                     filterTransportsByLocation(scanner);
                     break;
                 case 3:
-                    this.requestHandler.viewAllDestinations();
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
                     break;
                 case 4:
-                    this.requestHandler.viewBalance((Costumer) this.person);
+                    this.requestHandler.viewAllDestinations();
                     break;
                 case 5:
-                    this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
+                    this.requestHandler.viewBalance((Costumer) this.person);
                     break;
                 case 6:
-                    this.requestHandler.viewTickets((Costumer) this.person);
+                    this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
                     break;
                 case 7:
-                    buyTicketRequest(scanner);
+                    this.requestHandler.viewTickets((Costumer) this.person);
                     break;
                 case 8:
-                    this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
+                    buyTicketRequest(scanner);
                     break;
                 case 9:
+                    this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
+                    break;
+                case 10:
                     this.person = null;
                     System.out.println("Logout successful!");
                     break;
@@ -138,12 +146,13 @@ public class App {
         System.out.println("\nPlease select an option:");
         System.out.println("1. View transports");
         System.out.println("2. Filter transports by location");
-        System.out.println("3. View destinations");
-        System.out.println("4. Add location");
-        System.out.println("5. Add transport");
-        System.out.println("6. Cancel transport");
-        System.out.println("7. View all tickets booked on a specific transport");
-        System.out.println("8. Logout");
+        System.out.println("3. Filter transports by price");
+        System.out.println("4. View destinations");
+        System.out.println("5. Add location");
+        System.out.println("6. Add transport");
+        System.out.println("7. Cancel transport");
+        System.out.println("8. View all tickets booked on a specific transport");
+        System.out.println("9. Logout");
         System.out.println("++++++++++++++++++++++++++++");
         try {
             int choice = Integer.parseInt(scanner.nextLine());
@@ -155,21 +164,24 @@ public class App {
                     filterTransportsByLocation(scanner);
                     break;
                 case 3:
-                    this.requestHandler.viewAllDestinations();
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
                     break;
                 case 4:
-                    addLocation(scanner);
+                    this.requestHandler.viewAllDestinations();
                     break;
                 case 5:
-                    addTransport(scanner);
+                    addLocation(scanner);
                     break;
                 case 6:
-                    this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
+                    addTransport(scanner);
                     break;
                 case 7:
-                    this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
+                    this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
                     break;
                 case 8:
+                    this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
+                    break;
+                case 9:
                     this.person = null;
                     System.out.println("Logout successful!");
                     break;
@@ -307,6 +319,12 @@ public class App {
         System.out.println("Enter location ID for destination (type -1 to select all available locations as destination): ");
         int destination = Integer.parseInt(scanner.nextLine());
         this.requestHandler.filterByLocation(origin, destination);
+    }
+
+    public int readFilterByPrice(Scanner scanner) {
+        System.out.println("\n--- Filter transports by price ---");
+        System.out.println("Enter maximum ticket price in Euro:");
+        return Integer.parseInt(scanner.nextLine());
     }
 
     public static void main(String[] args) {

@@ -62,6 +62,16 @@ public class Train extends Transport {
     public void setSecondCapacity(int newcapacity) {this.secondCapacity = newcapacity;}
 
     /**
+     * Getter für die zum Zeitpunkt des Methodenaufrufs noch verfügbare Gesamtkapazität
+     *
+     * @return Gesamtzahl noch freier Sitzplätze unabhängig von Klasse auf dem Zugtransport
+     */
+    @Override
+    public int getCapacity() {
+        return this.firstCapacity + this.secondCapacity;
+    }
+
+    /**
      * Getter für HashMap welche alle, zum Zeitpunkt des Methodenaufrufs, auf dem Zugtransport reservierten Tickets enthält
      *
      * @return HashMap mit allen gebuchten Tickets auf dem Zugtransport
