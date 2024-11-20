@@ -53,8 +53,8 @@ public class App {
     /**
      * Zeigt den Startbildschirm für Gäste an, um Optionen wie Registrierung und Anmeldung auszuwählen.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return true, wenn die App weiterhin läuft, false, wenn sie beendet werden soll.
+     * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return Wahr, wenn die App weiterhin laufen soll, false, wenn sie beendet werden soll
      */
     private boolean startScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
@@ -62,10 +62,12 @@ public class App {
         System.out.println("1. Register");
         System.out.println("2. Login");
         System.out.println("3. View transports");
-        System.out.println("4. Filter transports by location");
-        System.out.println("5. Filter transports by price");
-        System.out.println("6. View destinations");
-        System.out.println("7. Exit");
+        System.out.println("4. Sort transports by date");
+        System.out.println("5. Sort transports by duration");
+        System.out.println("6. Filter transports by location");
+        System.out.println("7. Filter transports by price");
+        System.out.println("8. View destinations");
+        System.out.println("9. Exit");
         System.out.println("++++++++++++++++++++++++++++");
         try {int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
@@ -79,15 +81,21 @@ public class App {
                     this.requestHandler.viewAllTransports();
                     break;
                 case 4:
-                    filterTransportsByLocation(scanner);
+                    this.requestHandler.sortTransportsByDate();
                     break;
                 case 5:
-                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
+                    this.requestHandler.sortTransportsByDuration();
                     break;
                 case 6:
-                    this.requestHandler.viewAllDestinations();
+                    filterTransportsByLocation(scanner);
                     break;
                 case 7:
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
+                    break;
+                case 8:
+                    this.requestHandler.viewAllDestinations();
+                    break;
+                case 9:
                     System.out.println("Exiting the system. Goodbye!");
                     return false;
                 default:
@@ -104,21 +112,23 @@ public class App {
     /**
      * Zeigt das Menü für Kunden an, nachdem sie sich angemeldet haben.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     private void costumerScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
         System.out.println("1. View transports");
-        System.out.println("2. Filter transports by location");
-        System.out.println("3. Filter transports by price");
-        System.out.println("4. View destinations");
-        System.out.println("5. View balance");
-        System.out.println("6. Add balance");
-        System.out.println("7. View all reserved tickets");
-        System.out.println("8. Buy ticket");
-        System.out.println("9. Cancel ticket");
-        System.out.println("10. Logout");
+        System.out.println("2. Sort transports by date");
+        System.out.println("3. Sort transports by duration");
+        System.out.println("4. Filter transports by location");
+        System.out.println("5. Filter transports by price");
+        System.out.println("6. View destinations");
+        System.out.println("7. View balance");
+        System.out.println("8. Add balance");
+        System.out.println("9. View all reserved tickets");
+        System.out.println("10. Buy ticket");
+        System.out.println("11. Cancel ticket");
+        System.out.println("12. Logout");
         System.out.println("++++++++++++++++++++++++++++");
         try {
             int choice = Integer.parseInt(scanner.nextLine());
@@ -127,30 +137,36 @@ public class App {
                     this.requestHandler.viewAllTransports();
                     break;
                 case 2:
-                    filterTransportsByLocation(scanner);
+                    this.requestHandler.sortTransportsByDate();
                     break;
                 case 3:
-                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
+                    this.requestHandler.sortTransportsByDuration();
                     break;
                 case 4:
-                    this.requestHandler.viewAllDestinations();
+                    filterTransportsByLocation(scanner);
                     break;
                 case 5:
-                    this.requestHandler.viewBalance((Costumer) this.person);
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
                     break;
                 case 6:
-                    this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
+                    this.requestHandler.viewAllDestinations();
                     break;
                 case 7:
-                    this.requestHandler.viewTickets((Costumer) this.person);
+                    this.requestHandler.viewBalance((Costumer) this.person);
                     break;
                 case 8:
-                    buyTicketRequest(scanner);
+                    this.requestHandler.addBalance((Costumer) this.person, readBalanceAddition(scanner));
                     break;
                 case 9:
-                    this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
+                    this.requestHandler.viewTickets((Costumer) this.person);
                     break;
                 case 10:
+                    buyTicketRequest(scanner);
+                    break;
+                case 11:
+                    this.requestHandler.cancelTicket((Costumer) this.person, readCancelTicketRequest(scanner));
+                    break;
+                case 12:
                     this.person = null;
                     System.out.println("Logout successful!");
                     break;
@@ -165,20 +181,23 @@ public class App {
     /**
      * Zeigt das Menü für Administratoren an, nachdem sie sich angemeldet haben.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     private void administratorScreen(Scanner scanner) {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
         System.out.println("1. View transports");
-        System.out.println("2. Filter transports by location");
-        System.out.println("3. Filter transports by price");
-        System.out.println("4. View destinations");
-        System.out.println("5. Add location");
-        System.out.println("6. Add transport");
-        System.out.println("7. Cancel transport");
-        System.out.println("8. View all tickets booked on a specific transport");
-        System.out.println("9. Logout");
+        System.out.println("2. Sort transports by date");
+        System.out.println("3. Sort transports by duration");
+        System.out.println("4. Filter transports by location");
+        System.out.println("5. Filter transports by price");
+        System.out.println("6. View destinations");
+        System.out.println("7. Add location");
+        System.out.println("8. Add transport");
+        System.out.println("9. Cancel transport");
+        System.out.println("10. View all tickets booked on a specific transport");
+        System.out.println("11. View locations sorted by total tickets");
+        System.out.println("12. Logout");
         System.out.println("++++++++++++++++++++++++++++");
         try {
             int choice = Integer.parseInt(scanner.nextLine());
@@ -187,27 +206,36 @@ public class App {
                     this.requestHandler.viewAllTransports();
                     break;
                 case 2:
-                    filterTransportsByLocation(scanner);
+                    this.requestHandler.sortTransportsByDate();
                     break;
                 case 3:
-                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
+                    this.requestHandler.sortTransportsByDuration();
                     break;
                 case 4:
-                    this.requestHandler.viewAllDestinations();
+                    filterTransportsByLocation(scanner);
                     break;
                 case 5:
-                    addLocation(scanner);
+                    this.requestHandler.filterByPrice(readFilterByPrice(scanner));
                     break;
                 case 6:
-                    addTransport(scanner);
+                    this.requestHandler.viewAllDestinations();
                     break;
                 case 7:
-                    this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
+                    addLocation(scanner);
                     break;
                 case 8:
-                    this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
+                    addTransport(scanner);
                     break;
                 case 9:
+                    this.requestHandler.cancelTransport((Administrator) this.person, readCancelTransportRequest(scanner));
+                    break;
+                case 10:
+                    this.requestHandler.showAllTickets((Administrator) this.person, readTransportId(scanner));
+                    break;
+                case 11:
+                    this.requestHandler.showLocationsByTotalTickets();
+                    break;
+                case 12:
                     this.person = null;
                     System.out.println("Logout successful!");
                     break;
@@ -222,7 +250,7 @@ public class App {
     /**
      * Registriert einen neuen Benutzer, entweder als Kunde oder als Administrator.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     private void register(Scanner scanner) {
         System.out.println("\n--- Register ---");
@@ -250,7 +278,7 @@ public class App {
     /**
      * Meldet einen Benutzer an, basierend auf der eingegebenen E-Mail und dem Passwort.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     private void login(Scanner scanner) {
         System.out.println("\n--- Login ---");
@@ -264,8 +292,8 @@ public class App {
     /**
      * Liest den Betrag, der dem Konto des Benutzers hinzugefügt werden soll.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return der Betrag in Euro, der hinzugefügt werden soll.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return          Betrag in Euro, der hinzugefügt werden soll.
      */
     private int readBalanceAddition(Scanner scanner) {
         System.out.println("\n--- Add balance ---");
@@ -275,18 +303,17 @@ public class App {
     }
 
     /**
-     * Prompts the user to buy a ticket for a specified transport. The user is asked to input the transport ID
-     * and the desired ticket class (1 or 2). The method validates the ticket class and forwards the request
-     * to the {@link RequestHandler} for processing.
+     * Verarbeitet Eingaben um dem Benutzer eine Fahrkarte für ein bestimmtes Verkehrsmittel zu kaufen.
+     * Der Benutzer wird hierfür aufgefordert, die Transport-ID und die gewünschte Fahrscheinklasse (1 oder 2) einzugeben.
+     * Die Methode validiert die Fahrscheinklasse und leitet die Anfrage an den {@link RequestHandler} weiter für Verarbeitung.
      *
-     * <p>Displays available options based on the type of transport:
+     * <p>Optionen werden basierend auf dem Typ von Transport angezeigt:
      * <ul>
-     *     <li>For Bus: Only 2nd class is available for 20 Euros.</li>
-     *     <li>For Train: Options include 1st class for 50 Euros and 2nd class for 15 Euros.</li>
+     *     <li>Für Bus: nur 2. Klasse für 20 Euro ist verfügbar</li>
+     *     <li>Für Zug: Optionen für 1. KLasse (50 Euro) und 2. Klasse (15 Euro) verfügbar</li>
      * </ul>
      *
-     * @param scanner the {@link Scanner} object used for reading user input
-     * @throws NumberFormatException if the user inputs invalid numerical data
+     * @param scanner                Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     public void buyTicketRequest(Scanner scanner) {
         System.out.println("\n--- Buy ticket ---");
@@ -300,10 +327,14 @@ public class App {
                 \t - 1st for 50 Euro
                 \t - 2nd for 15 Euro""");
         System.out.println("Enter class you would like to book (1/2): ");
-        int ticketclass = Integer.parseInt(scanner.nextLine());
-        if (ticketclass == 1 || ticketclass == 2) {
-            this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
-        } else {
+        try {
+            int ticketclass = Integer.parseInt(scanner.nextLine());
+            if (ticketclass == 1 || ticketclass == 2) {
+                this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
+            } else {
+                System.out.println("No correct class was entered, please try again!");
+            }
+        } catch (NumberFormatException e) {
             System.out.println("No correct class was entered, please try again!");
         }
     }
@@ -311,8 +342,8 @@ public class App {
     /**
      * Liest die Daten eines Tickets, das der Benutzer stornieren möchte.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return die Ticketnummer des zu stornierenden Tickets.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return          Ticketnummer des zu stornierenden Tickets.
      */
     public int readCancelTicketRequest(Scanner scanner) {
         System.out.println("\n--- Cancel ticket ---");
@@ -323,7 +354,7 @@ public class App {
     /**
      * Fügt einen neuen Ort in das System ein.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     public void addLocation(Scanner scanner) {
         System.out.println("\n--- Add location ---");
@@ -337,7 +368,7 @@ public class App {
     /**
      * Fügt einen neuen Transport in das System ein.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     public void addTransport(Scanner scanner) {
         System.out.println("\n--- Add transport ---");
@@ -379,8 +410,8 @@ public class App {
     /**
      * Liest die Transport-ID eines Transports, der storniert werden soll.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return die Transport-ID des zu stornierenden Transports.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return          Transport-ID des zu stornierenden Transports.
      */
     public int readCancelTransportRequest(Scanner scanner) {
         System.out.println("\n--- Cancel transport ---");
@@ -391,8 +422,8 @@ public class App {
     /**
      * Liest die Transport-ID eines Transports, für den alle gebuchten Tickets angezeigt werden sollen.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return die Transport-ID des Transports.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return          Transport-ID des Transports.
      */
     public int readTransportId(Scanner scanner) {
         System.out.println("\n--- View all tickets booked on a specific transport ---");
@@ -403,7 +434,7 @@ public class App {
     /**
      * Filtert Transporte basierend auf einem angegebenen Ursprungs- und Zielort.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     public void filterTransportsByLocation(Scanner scanner) {
         System.out.println("\n--- Filter transports by location ---");
@@ -417,8 +448,8 @@ public class App {
     /**
      * Liest den maximalen Ticketpreis zum Filtern der Transporte.
      *
-     * @param scanner das Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return der maximale Ticketpreis in Euro.
+     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return          maximaler Ticketpreis in Euro.
      */
     public int readFilterByPrice(Scanner scanner) {
         System.out.println("\n--- Filter transports by price ---");
@@ -427,36 +458,9 @@ public class App {
     }
 
     /**
-     * Sortiert Transporte nach Datum und zeigt sie an.
-     */
-    public void sortByDate() {
-        System.out.println("\n--- Sort Transports by Date ---");
-        StringBuilder out = new StringBuilder("--- Transports sorted by date ---\n");
-        requestHandler.sortTransportsByDate().forEach(transport -> out.append(transport.toString()).append("\n"));
-        System.out.println(out);
-    }
-
-    /**
-     * Sortiert Transporte nach Dauer in absteigender Reihenfolge und zeigt sie an.
-     */
-    public void sortByDuration() {
-        System.out.println("\n--- Sort Transports by Duration ---");
-        StringBuilder out = new StringBuilder("--- Transports sorted by duration (descending) ---\n");
-        requestHandler.sortTransportsByDuration().forEach(transport -> out.append(transport.toString()).append("\n"));
-        System.out.println(out);
-    }
-
-    /**
-     * Zeigt Orte basierend auf der Gesamtanzahl der gebuchten Tickets an.
-     */
-    public void showLocationsSortedByTickets() {
-        requestHandler.showLocationsByTotalTickets();
-    }
-
-    /**
      * Die Hauptmethode zum Starten der App.
      *
-     * @param args die Argumente der Kommandozeile.
+     * @param args Argumente der Kommandozeile.
      */
     public static void main(String[] args) {
         IRepository<Person> personRepository = createInMemoryPersonRepository();
@@ -473,7 +477,7 @@ public class App {
     /**
      * Erstellt ein In-Memory-Repository für Personen.
      *
-     * @return ein Repository für Personen.
+     * @return Repository für Personen.
      */
     private static IRepository<Person> createInMemoryPersonRepository() {
         IRepository<Person> personIRepository = new InMemoryRepository<>();
@@ -485,7 +489,7 @@ public class App {
     /**
      * Erstellt ein In-Memory-Repository für Transporte.
      *
-     * @return ein Repository für Transporte.
+     * @return Repository für Transporte.
      */
     private static IRepository<Transport> createInMemoryTransportRepository() {
         IRepository<Transport> transportIRepository = new InMemoryRepository<>();
@@ -495,7 +499,7 @@ public class App {
     /**
      * Erstellt ein In-Memory-Repository für Tickets.
      *
-     * @return ein Repository für Tickets.
+     * @return Repository für Tickets.
      */
     private static IRepository<Ticket> createInMemoryTicketRepository() {
         IRepository<Ticket> ticketIRepository = new InMemoryRepository<>();
@@ -505,7 +509,7 @@ public class App {
     /**
      * Erstellt ein In-Memory-Repository für Orte.
      *
-     * @return ein Repository für Orte.
+     * @return Repository für Orte.
      */
     private static IRepository<Location> createInMemoryLocationRepository() {
         IRepository<Location> locationIRepository = new InMemoryRepository<>();

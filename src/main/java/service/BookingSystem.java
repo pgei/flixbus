@@ -236,8 +236,10 @@ public class BookingSystem {
      * Zur Überprüfung dessen wird zuerst kontrolliert, ob überhaupt ein Transport mit der angegebenen ID existiert.
      * Ist dies der Fall, wird im nächsten Schritt versucht, das Ticket zu erstellen, wobei die Sitznummer bei Erfolg wie folgt vergeben wird:
      *
-     * <li>Bus: die Sitzplätze sind nach der Anzahl an Sitzplätzen durchnummeriert und werden in absteigender Reihenfolge vergeben <li/>
-     * <li>Zug: die Sitzplätze sind wie bei Bus durchnummeriert für jede Klasse, um die Klasse zu kennzeichen wird der Sitznummer eine 1 respektive 2 voraus gestellt<li/>
+     * <ul>
+     *   <li>Bus: die Sitzplätze sind nach der Anzahl an Sitzplätzen durchnummeriert und werden in absteigender Reihenfolge vergeben </li>
+     *   <li>Zug: die Sitzplätze sind wie bei Bus durchnummeriert für jede Klasse, um die Klasse zu kennzeichen wird der Sitznummer eine 1 respektive 2 voraus gestellt</li>
+     * </ul>
      * <p>
      * Beispiel: wenn die erste Klasse im Zug 5 Sitzplätze hat, dann wird der erste vergebene Sitzplatz 15 sein und der letzte 11
      *
@@ -596,11 +598,11 @@ public class BookingSystem {
     /**
      * Gibt eine Liste von Transporten zurück, sortiert nach Datum in aufsteigender Reihenfolge.
      *
-     * @return eine Liste von Transportobjekten, sortiert nach dem Abfahrtsdatum.
+     * @return Liste von Transportobjekten sortiert nach dem Abfahrtsdatum.
      */
     public List<Transport> getTransportsSortedByDate() {
         return transportRepository.getAll().stream()
-                .sorted(Comparator.comparing(Transport::getDate))
+                .sorted(Comparator.comparing(Transport::getDate).thenComparing(Transport::getDepartureTime))
                 .collect(Collectors.toList());
     }
 
@@ -608,7 +610,7 @@ public class BookingSystem {
      * Gibt eine Liste von Transporten zurück, sortiert nach Dauer in aufsteigender Reihenfolge.
      * Die Dauer wird als die Zeitdifferenz zwischen Abfahrts- und Ankunftszeit berechnet.
      *
-     * @return eine Liste von Transportobjekten, sortiert nach der Dauer der Fahrt.
+     * @return Liste von Transportobjekten, sortiert nach der Dauer der Fahrt.
      */
     public List<Transport> getTransportsSortedByDuration() {
         return transportRepository.getAll().stream()
@@ -619,10 +621,10 @@ public class BookingSystem {
     }
 
     /**
-     * Gibt eine Liste der Orte zurück, sortiert nach der Anzahl der Tickets, die für Transporte gebucht wurden,
-     * die an diesen Orten starten oder enden.
+     * Gibt eine Liste von Orten zurück, sortiert nach der Anzahl der gebuchten Tickets,
+     * die für Transporte, die an diesem Ort starten oder enden, reserviert wurden.
      *
-     * @return eine Liste von Orten, sortiert nach der Gesamtanzahl der gebuchten Tickets.
+     * @return Liste von Orten, sortiert nach der Gesamtanzahl der gebuchten Tickets.
      */
     public List<Location> getLocationsByTotalTickets() {
         Map<Location, Long> locationTicketCountMap = new HashMap<>();

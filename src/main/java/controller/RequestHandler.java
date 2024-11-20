@@ -17,7 +17,7 @@ public class RequestHandler {
     /**
      * Konstruktor, um den RequestHandler mit einem BookingSystem zu initialisieren.
      *
-     * @param system das BookingSystem, mit dem der RequestHandler kommuniziert.
+     * @param system BookingSystem, mit dem der RequestHandler kommuniziert.
      */
     public RequestHandler(BookingSystem system) {
         this.bookingSystem = system;
@@ -26,9 +26,9 @@ public class RequestHandler {
     /**
      * Registriert einen Benutzer als Kunde.
      *
-     * @param name     der Name des Benutzers.
-     * @param email    die E-Mail-Adresse des Benutzers.
-     * @param password das Passwort des Benutzers.
+     * @param name     Name des Benutzers.
+     * @param email    E-Mail-Adresse des Benutzers.
+     * @param password Passwort des Benutzers.
      */
     public void registerAsCostumer(String name, String email, String password) {
         boolean success = bookingSystem.registerUser(name, email, password, false);
@@ -42,9 +42,9 @@ public class RequestHandler {
     /**
      * Registriert einen Benutzer als Administrator.
      *
-     * @param name     der Name des Benutzers.
-     * @param email    die E-Mail-Adresse des Benutzers.
-     * @param password das Passwort des Benutzers.
+     * @param name     Name des Benutzers.
+     * @param email    E-Mail-Adresse des Benutzers.
+     * @param password Passwort des Benutzers.
      */
     public void registerAsAdministrator(String name, String email, String password) {
         boolean success = bookingSystem.registerUser(name, email, password, true);
@@ -58,9 +58,9 @@ public class RequestHandler {
     /**
      * Führt die Anmeldung eines Benutzers durch.
      *
-     * @param email    die E-Mail-Adresse des Benutzers.
-     * @param password das Passwort des Benutzers.
-     * @return das angemeldete Benutzerobjekt oder null, falls die Anmeldedaten ungültig sind.
+     * @param email     E-Mail-Adresse des Benutzers.
+     * @param password  Passwort des Benutzers.
+     * @return          angemeldetes Person-Objekt oder null, falls die Anmeldedaten ungültig sind.
      */
     public Person login(String email, String password) {
         Person loggedin = bookingSystem.checkLoginCredentials(email, password);
@@ -74,7 +74,7 @@ public class RequestHandler {
     }
 
     /**
-     * Zeigt alle verfügbaren Transporte an.
+     * Zeigt alle Transporte im Repository an.
      */
     public void viewAllTransports() {
         StringBuilder out = new StringBuilder("--- View transports ---\n");
@@ -85,8 +85,8 @@ public class RequestHandler {
     /**
      * Filtert die verfügbaren Transporte basierend auf Start- und Zielorten.
      *
-     * @param origin      die ID des Startortes (-1 für beliebig).
-     * @param destination die ID des Zielortes (-1 für beliebig).
+     * @param origin      ID des Startortes (-1 für beliebig).
+     * @param destination ID des Zielortes (-1 für beliebig).
      */
     public void filterByLocation(int origin, int destination) {
         StringBuilder out = new StringBuilder("--- Available transports from ");
@@ -107,7 +107,7 @@ public class RequestHandler {
     /**
      * Filtert verfügbare Transporte basierend auf dem maximalen Preis.
      *
-     * @param price der maximale Preis in Euro.
+     * @param price maximaler Preis in Euro.
      */
     public void filterByPrice(int price) {
         StringBuilder out = new StringBuilder("--- Available transports with a maximum price of " + price + " Euro ---\n");
@@ -116,25 +116,27 @@ public class RequestHandler {
     }
 
     /**
-     * Sortiert und gibt die Transporte nach Datum aus.
+     * Gibt Transporte in aufsteigender Reihenfolge sortiert nach Datum, und zweitrangig Abfahrtsuhrzeit, aus.
      *
-     * @return die Liste der nach Datum sortierten Transporte.
      */
-    public List<Transport> sortTransportsByDate() {
-        return bookingSystem.getTransportsSortedByDate();
+    public void sortTransportsByDate() {
+        StringBuilder out = new StringBuilder("--- Transports sorted by date (and departure time) ---\n");
+        bookingSystem.getTransportsSortedByDate().forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
     }
 
     /**
-     * Sortiert und gibt die Transporte basierend auf der Dauer (absteigend) aus.
+     * Sortiert und gibt die Transporte basierend auf der Dauer in aufsteigender Reihenfolge aus.
      *
-     * @return die Liste der nach Dauer sortierten Transporte.
      */
-    public List<Transport> sortTransportsByDuration() {
-        return bookingSystem.getTransportsSortedByDuration();
+    public void sortTransportsByDuration() {
+        StringBuilder out = new StringBuilder("--- Transports sorted by duration (ascending) ---\n");
+        bookingSystem.getTransportsSortedByDuration().forEach(transport -> out.append(transport.toString()).append("\n"));
+        System.out.println(out);
     }
 
     /**
-     * Zeigt alle verfügbaren Zielorte an.
+     * Zeigt alle verfügbaren Zielorte im Repository an.
      */
     public void viewAllDestinations() {
         StringBuilder out = new StringBuilder("--- Available destinations ---\n");
@@ -145,7 +147,7 @@ public class RequestHandler {
     /**
      * Zeigt das Guthaben eines Kunden an.
      *
-     * @param costumer der Kunde, dessen Guthaben angezeigt werden soll.
+     * @param costumer Kunde, dessen Guthaben angezeigt werden soll.
      */
     public void viewBalance(Costumer costumer) {
         System.out.println("You have a total of " + bookingSystem.getBalance(costumer) + " Euros in your account.");
@@ -154,8 +156,8 @@ public class RequestHandler {
     /**
      * Fügt Guthaben zum Konto eines Kunden hinzu.
      *
-     * @param costumer der Kunde, dem Guthaben hinzugefügt wird.
-     * @param amount   der hinzuzufügende Betrag in Euro.
+     * @param costumer Kunde, dem Guthaben hinzugefügt wird.
+     * @param amount   hinzuzufügender Betrag in Euro.
      */
     public void addBalance(Costumer costumer, int amount) {
         bookingSystem.addBalance(costumer, amount);
@@ -165,7 +167,7 @@ public class RequestHandler {
     /**
      * Zeigt alle Tickets eines Kunden an.
      *
-     * @param costumer der Kunde, dessen Tickets angezeigt werden sollen.
+     * @param costumer Kunde, dessen Tickets angezeigt werden sollen.
      */
     public void viewTickets(Costumer costumer) {
         List<Ticket> list = bookingSystem.getALlTickets(costumer);
@@ -176,9 +178,9 @@ public class RequestHandler {
     /**
      * Kauft ein Ticket für einen bestimmten Transport und eine bestimmte Klasse.
      *
-     * @param costumer    der Kunde, der das Ticket kauft.
-     * @param transportid die ID des Transports.
-     * @param ticketclass die Ticketklasse (z.B. 1. oder 2. Klasse).
+     * @param costumer      Kunde, der das Ticket kauft.
+     * @param transportid   ID des Transports.
+     * @param ticketclass   Ticketklasse (z.B. 1. oder 2. Klasse).
      */
     public void buyTicket(Costumer costumer, int transportid, int ticketclass) {
         boolean success = bookingSystem.createTicket(costumer, transportid, ticketclass);
@@ -192,8 +194,8 @@ public class RequestHandler {
     /**
      * Storniert ein Ticket eines Kunden.
      *
-     * @param costumer der Kunde, der das Ticket stornieren möchte.
-     * @param ticketid die ID des Tickets.
+     * @param costumer  Kunde, der das Ticket stornieren möchte.
+     * @param ticketid  ID des Tickets.
      */
     public void cancelTicket(Costumer costumer, int ticketid) {
         boolean success = bookingSystem.removeTicket(costumer, ticketid);
@@ -207,9 +209,9 @@ public class RequestHandler {
     /**
      * Fügt einen neuen Ort hinzu.
      *
-     * @param admin  der Administrator, der den Ort hinzufügt.
-     * @param street die Straße des Ortes.
-     * @param city   die Stadt des Ortes.
+     * @param admin  Administrator, der den Ort hinzufügt.
+     * @param street Straße des Ortes.
+     * @param city   Stadt des Ortes.
      */
     public void addLocation(Administrator admin, String street, String city) {
         boolean success = bookingSystem.createLocation(admin, street, city);
@@ -223,17 +225,17 @@ public class RequestHandler {
     /**
      * Fügt einen neuen Bus-Transport hinzu.
      *
-     * @param admin         der Administrator, der den Transport hinzufügt.
-     * @param originid      die ID des Startortes.
-     * @param destinationid die ID des Zielortes.
-     * @param year          das Jahr der Abfahrt.
-     * @param month         der Monat der Abfahrt.
-     * @param day           der Tag der Abfahrt.
-     * @param hourd         die Stunde der Abfahrt.
-     * @param mind          die Minute der Abfahrt.
-     * @param houra         die Stunde der Ankunft.
-     * @param mina          die Minute der Ankunft.
-     * @param capacity      die Kapazität des Busses.
+     * @param admin         Administrator, der den Transport hinzufügt.
+     * @param originid      ID des Startortes.
+     * @param destinationid ID des Zielortes.
+     * @param year          Jahr der Abfahrt.
+     * @param month         Monat der Abfahrt.
+     * @param day           Tag der Abfahrt.
+     * @param hourd         Stunde der Abfahrt.
+     * @param mind          Minute der Abfahrt.
+     * @param houra         Stunde der Ankunft.
+     * @param mina          Minute der Ankunft.
+     * @param capacity      Kapazität des Busses.
      */
     public void addBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
         boolean success = bookingSystem.createBusTransport(admin, originid, destinationid, year, month, day, hourd, mind, houra, mina, capacity);
@@ -247,18 +249,18 @@ public class RequestHandler {
     /**
      * Fügt einen neuen Zug-Transport hinzu.
      *
-     * @param admin          der Administrator, der den Transport hinzufügt.
-     * @param originid       die ID des Startortes.
-     * @param destinationid  die ID des Zielortes.
-     * @param year           das Jahr der Abfahrt.
-     * @param month          der Monat der Abfahrt.
-     * @param day            der Tag der Abfahrt.
-     * @param hourd          die Stunde der Abfahrt.
-     * @param mind           die Minute der Abfahrt.
-     * @param houra          die Stunde der Ankunft.
-     * @param mina           die Minute der Ankunft.
-     * @param firstcapacity  die Kapazität der 1. Klasse.
-     * @param secondcapacity die Kapazität der 2. Klasse.
+     * @param admin          Administrator, der den Transport hinzufügt.
+     * @param originid       ID des Startortes.
+     * @param destinationid  ID des Zielortes.
+     * @param year           Jahr der Abfahrt.
+     * @param month          Monat der Abfahrt.
+     * @param day            Tag der Abfahrt.
+     * @param hourd          Stunde der Abfahrt.
+     * @param mind           Minute der Abfahrt.
+     * @param houra          Stunde der Ankunft.
+     * @param mina           Minute der Ankunft.
+     * @param firstcapacity  Kapazität der 1. Klasse.
+     * @param secondcapacity Kapazität der 2. Klasse.
      */
     public void addTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
         boolean success = bookingSystem.createTrainTransport(admin, originid, destinationid, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
@@ -272,8 +274,8 @@ public class RequestHandler {
     /**
      * Storniert einen Transport.
      *
-     * @param admin       der Administrator, der den Transport storniert.
-     * @param transportid die ID des Transports.
+     * @param admin       Administrator, der den Transport storniert.
+     * @param transportid ID des Transports.
      */
     public void cancelTransport(Administrator admin, int transportid) {
         boolean success = bookingSystem.removeTransport(admin, transportid);
@@ -287,8 +289,8 @@ public class RequestHandler {
     /**
      * Zeigt alle Tickets für einen bestimmten Transport an.
      *
-     * @param admin       der Administrator, der die Tickets anzeigen möchte.
-     * @param transportid die ID des Transports.
+     * @param admin       Administrator, der die Tickets anzeigen möchte.
+     * @param transportid ID des Transports.
      */
     public void showAllTickets(Administrator admin, int transportid) {
         List<Ticket> list = bookingSystem.getAllTransportTickets(admin, transportid);
@@ -301,14 +303,11 @@ public class RequestHandler {
     }
 
     /**
-     * Zeigt eine Liste von Orten an, sortiert nach der Anzahl der gebuchten Tickets,
-     * die für Transporte an diesen Orten gemacht wurden.
+     * Zeigt Orte basierend auf der Gesamtanzahl der gebuchten Tickets, die an einem Ort starten oder enden, an.
      */
     public void showLocationsByTotalTickets() {
         StringBuilder out = new StringBuilder("--- Locations sorted by total tickets ---\n");
-        bookingSystem.getLocationsByTotalTickets().forEach(location ->
-                out.append(location.toString()).append("\n")
-        );
+        bookingSystem.getLocationsByTotalTickets().forEach(location -> out.append(location.toString()).append("\n"));
         System.out.println(out);
     }
 
