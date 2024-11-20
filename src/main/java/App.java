@@ -2,6 +2,7 @@ package main.java;
 
 import main.java.controller.RequestHandler;
 import main.java.model.*;
+import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
 import main.java.service.BookingSystem;
@@ -15,6 +16,15 @@ import java.util.Scanner;
  */
 public class App {
 
+    /**
+     * Variable die festlegt, mit welcher Art von Repository gearbeitet werden soll
+     * <ul>
+     *     <li>0: InMemoryRepository</li>
+     *     <li>1: FileRepository</li>
+     *     <li>2: DBRepository</li>
+     * </ul>
+     */
+    private final static int repositorySource = 1;
     private final RequestHandler requestHandler;
     private Person person;
 
@@ -463,15 +473,25 @@ public class App {
      * @param args Argumente der Kommandozeile.
      */
     public static void main(String[] args) {
-        IRepository<Person> personRepository = createInMemoryPersonRepository();
-        IRepository<Transport> transportRepository = createInMemoryTransportRepository();
-        IRepository<Location> locationRepository = createInMemoryLocationRepository();
-        IRepository<Ticket> ticketRepository = createInMemoryTicketRepository();
-
-        BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
-        RequestHandler requestHandler = new RequestHandler(bookingSystem);
-        App application = new App(requestHandler);
-        application.start();
+        if (repositorySource == 0) {
+            IRepository<Person> personRepository = createInMemoryPersonRepository();
+            IRepository<Transport> transportRepository = createInMemoryTransportRepository();
+            IRepository<Location> locationRepository = createInMemoryLocationRepository();
+            IRepository<Ticket> ticketRepository = createInMemoryTicketRepository();
+            BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
+            RequestHandler requestHandler = new RequestHandler(bookingSystem);
+            App application = new App(requestHandler);
+            application.start();
+        } else if (repositorySource == 1) {
+            IRepository<Person> personRepository = new FileRepository<>("src/main/setup/persons.db");
+            IRepository<Transport> transportRepository = new FileRepository<>("src/main/setup/transports.db");
+            IRepository<Ticket> ticketRepository = new FileRepository<>("src/main/setup/tickets.db");
+            IRepository<Location> locationRepository = new FileRepository<>("src/main/setup/locations.db");
+            BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
+            RequestHandler requestHandler = new RequestHandler(bookingSystem);
+            App application = new App(requestHandler);
+            application.start();
+        }
     }
 
     /**
