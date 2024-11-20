@@ -9,10 +9,10 @@ import main.java.repository.FileRepository;
 public class FileDataInitializer {
     public static void main(String[] args) {
         // Create file-based repositories
-        FileRepository<Person> personRepository = new FileRepository<>("src/main/setup/persons.db");
-        FileRepository<Transport> transportRepo = new FileRepository<>("src/main/setup/transports.db");
-        FileRepository<Location> locationRepo = new FileRepository<>("src/main/setup/locations.db");
-        FileRepository<Ticket> ticketRepo = new FileRepository<>("src/main/setup/tickets.db");
+        FileRepository<Person> personRepository = new FileRepository<>("src/main/fileresources/persons.db");
+        FileRepository<Transport> transportRepo = new FileRepository<>("src/main/fileresources/transports.db");
+        FileRepository<Location> locationRepo = new FileRepository<>("src/main/fileresources/locations.db");
+        FileRepository<Ticket> ticketRepo = new FileRepository<>("src/main/fileresources/tickets.db");
 
         // Create instances of Administrator and Costumer, Location and Transport
         Administrator admin1 = new Administrator("Admin_1", "admin1@gmail.com", "Adminpass123!");
@@ -23,6 +23,8 @@ public class FileDataInitializer {
         Location location2= new Location(1,"Mihai Viteazul","Sibiu");
         Transport transport1= new Bus(0, location1,location2,2023,12,13,14,0,17,0,20);
         Transport transport2=new Train(1,location1,location2,2023,12,13,10,0,15,0,20,50);
+        admin1.getAllAdministeredTransports().add(transport1);
+        admin1.getAllAdministeredTransports().add(transport2);
 
         // Save them in the respective repositories
         personRepository.create(admin1);

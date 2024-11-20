@@ -483,10 +483,10 @@ public class App {
             App application = new App(requestHandler);
             application.start();
         } else if (repositorySource == 1) {
-            IRepository<Person> personRepository = new FileRepository<>("src/main/setup/persons.db");
-            IRepository<Transport> transportRepository = new FileRepository<>("src/main/setup/transports.db");
-            IRepository<Ticket> ticketRepository = new FileRepository<>("src/main/setup/tickets.db");
-            IRepository<Location> locationRepository = new FileRepository<>("src/main/setup/locations.db");
+            IRepository<Person> personRepository = new FileRepository<>("src/main/fileresources/persons.db");
+            IRepository<Transport> transportRepository = new FileRepository<>("src/main/fileresources/transports.db");
+            IRepository<Ticket> ticketRepository = new FileRepository<>("src/main/fileresources/tickets.db");
+            IRepository<Location> locationRepository = new FileRepository<>("src/main/fileresources/locations.db");
             BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
             RequestHandler requestHandler = new RequestHandler(bookingSystem);
             App application = new App(requestHandler);
