@@ -3,6 +3,7 @@ package main.java.service;
 import main.java.model.*;
 import main.java.repository.IRepository;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -196,7 +197,7 @@ public class BookingSystem {
      * @return Liste aller Tickets, die von gegebenem Kunden gekauft wurden
      */
     public List<Ticket> getALlTickets(Costumer costumer) {
-        return costumer.getAllTickets();
+        return ((Costumer) this.personRepository.get(costumer.getId())).getAllTickets();
     }
 
     /**
@@ -206,7 +207,7 @@ public class BookingSystem {
      * @return Guthaben auf dem Konto des Kunden
      */
     public int getBalance(Costumer costumer) {
-        return costumer.getBalance();
+        return ((Costumer) this.personRepository.get(costumer.getId())).getBalance();
     }
 
     /**
@@ -274,9 +275,9 @@ public class BookingSystem {
      * Methode die ein Ticket für einen Bustransport erstellt, falls dies möglich ist.
      * Dabei wird zuerst überprüft, ob es noch freie Sitzplätze auf dem Transport gibt, sowie ob der Kunde noch genug Guthaben hat, um das Ticket zu bezahlen.
      *
-     * @param costumer Kunde der das Ticket buchen will
-     * @param bus      Bustransport auf dem das Ticket gültig sein soll
-     * @return Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
+     * @param costumer  Kunde der das Ticket buchen will
+     * @param bus       Bustransport auf dem das Ticket gültig sein soll
+     * @return          Wahr, falls Ticket erfolgreich erstellt werden konnte, sonst falsch
      */
     private boolean addBusTicket(Costumer costumer, Bus bus) {
         if ((bus.getCapacity() > 0 && costumer.getBalance() >= PRICE_BUS)) {
@@ -368,9 +369,9 @@ public class BookingSystem {
      * Um die Reihenfolge der Vergabe der Sitzplätze bei Buchung neuer Tickets nicht durcheinanderzubringen, wird das neuste Ticket (also kleinste Sitznummer) an die Stelle des gelöschten Tickets geschrieben.
      * Dh. der Sitzplatz des neusten Tickets ändert sich zu dem Sitzplatz des entfernten Tickets.
      *
-     * @param costumer Kunde der ein Ticket entfernen will
-     * @param id       Ticket-Nummer des Tickets das entfernt werden soll
-     * @return Wahr, falls Ticket erfolgreich gelöscht wurde, sonst falsch
+     * @param costumer  Kunde der ein Ticket entfernen will
+     * @param id        Ticket-Nummer des Tickets das entfernt werden soll
+     * @return          Wahr, falls Ticket erfolgreich gelöscht wurde, sonst falsch
      */
     public boolean removeTicket(Costumer costumer, int id) {
         Ticket ticket = this.ticketRepository.get(id);
@@ -378,7 +379,7 @@ public class BookingSystem {
             return false;
         }
         //Kontrolle, ob Ticket wirklich dem Kunden gehört
-        if (ticket.getCostumer().getId() != costumer.getId()) {
+        if (!ticket.getCostumer().getId().equals(costumer.getId())) {
             return false;
         }
         //Transport aktualisieren
@@ -388,11 +389,11 @@ public class BookingSystem {
             removeTicketFromTrainTransport(ticket);
         } else return false;
         //Kunde aktualisieren
-        costumer.getAllTickets().remove(ticket);
+        costumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(ticket.getId()));
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
         addBalance(costumer, (int) (ticket.getPrice() * 0.9));
         this.personRepository.update(costumer);
-        this.ticketRepository.delete(ticket.getId());
+        this.ticketRepository.delete(id);
         return true;
     }
 
@@ -403,7 +404,7 @@ public class BookingSystem {
      * @param ticket Ticket das entfernt werden soll
      */
     private void removeTicketFromBusTransport(Ticket ticket) {
-        Bus transport = (Bus) ticket.getTransport();
+        Bus transport = (Bus) this.transportRepository.get(ticket.getTransport().getId());
         HashMap<Integer, BusTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
@@ -414,6 +415,7 @@ public class BookingSystem {
             mapTickets.remove(changeticket.getSeat());
             changeticket.setSeat(ticket.getSeat());
             mapTickets.put(ticket.getSeat(), changeticket);
+
         }
         this.transportRepository.update(transport);
     }
@@ -425,7 +427,7 @@ public class BookingSystem {
      * @param ticket Ticket das entfernt werden soll
      */
     private void removeTicketFromTrainTransport(Ticket ticket) {
-        Train transport = (Train) ticket.getTransport();
+        Train transport = (Train) this.transportRepository.get(ticket.getTransport().getId());
         HashMap<Integer, TrainTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
@@ -465,9 +467,9 @@ public class BookingSystem {
             while (this.locationRepository.containsKey(this.locationIdCount)) {
                 this.locationIdCount++;
             }
-            //Ticket erstellen und in Repository hinterlegen
-            Location loc = new Location(this.locationIdCount, street, city);
-            this.locationRepository.create(loc);
+            //Location erstellen und in Repository hinterlegen
+            Location location = new Location(this.locationIdCount, street, city);
+            this.locationRepository.create(location);
             return true;
         }
         return false;
@@ -488,7 +490,7 @@ public class BookingSystem {
      * @param houra         Stunde, zu der der Transport endet
      * @param mina          Minute, zu der der Transport endet
      * @param capacity      Anzahl der Sitzplätze die der Bus hat
-     * @return Wahr, falls Bustransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @return              Wahr, falls Bustransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
         if (admin.isAdmin()) {
@@ -498,12 +500,11 @@ public class BookingSystem {
                 while (this.transportRepository.containsKey(this.transportIdCount)) {
                     this.transportIdCount++;
                 }
-                //Ticket erstellen und in Repository hinterlegen
+                //Transport erstellen und in Repository hinterlegen
                 Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
                 this.transportRepository.create(transport);
                 admin.getAllAdministeredTransports().add(transport);
-                this.personRepository.update(admin)
-                ;
+                this.personRepository.update(admin);
                 return true;
             }
         }
@@ -514,19 +515,19 @@ public class BookingSystem {
      * Methode um einen Zugtransport zu erstellen und ins Repository zu schreiben, dabei wird zuerst kontrolliert, ob es wirklich ein Administrator ist, der die Methode ausführt.
      * Zusätzlich wird geschaut ob Orte mit den gegebenen IDs wirklich existieren.
      *
-     * @param admin          Administrator der die Methode ausführen möchte
-     * @param originid       ID des Ortes an dem der Transport starten soll
-     * @param destinationid  ID des Ortes an dem der Transport enden soll
-     * @param year           Jahr in dem der Transport stattfindet
-     * @param month          Monat (als Zahl) in dem der Transport stattfindet
-     * @param day            Tag (als Zahl) an dem der Transport stattfindet
-     * @param hourd          Stunde, zu der der Transport startet
-     * @param mind           Minute, zu der der Transport startet
-     * @param houra          Stunde, zu der der Transport endet
-     * @param mina           Minute, zu der der Transport endet
-     * @param firstcapacity  Anzahl der Sitzplätze die der Zug in der 1. Klasse hat
-     * @param secondcapacity Anzahl der Sitzplätze die der Zug in der 2. Klasse hat
-     * @return Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
+     * @param admin             Administrator der die Methode ausführen möchte
+     * @param originid          ID des Ortes an dem der Transport starten soll
+     * @param destinationid     ID des Ortes an dem der Transport enden soll
+     * @param year              Jahr in dem der Transport stattfindet
+     * @param month             Monat (als Zahl) in dem der Transport stattfindet
+     * @param day               Tag (als Zahl) an dem der Transport stattfindet
+     * @param hourd             Stunde, zu der der Transport startet
+     * @param mind              Minute, zu der der Transport startet
+     * @param houra             Stunde, zu der der Transport endet
+     * @param mina              Minute, zu der der Transport endet
+     * @param firstcapacity     Anzahl der Sitzplätze die der Zug in der 1. Klasse hat
+     * @param secondcapacity    Anzahl der Sitzplätze die der Zug in der 2. Klasse hat
+     * @return                  Wahr, falls Zugtransport erfolgreich im Repository hinzugefügt wurde, sonst falsch
      */
     public boolean createTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
         if (admin.isAdmin()) {
@@ -536,7 +537,7 @@ public class BookingSystem {
                 while (this.transportRepository.containsKey(this.transportIdCount)) {
                     this.transportIdCount++;
                 }
-                //Ticket erstellen und in Repository hinterlegen
+                //Transport erstellen und in Repository hinterlegen
                 Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
                 this.transportRepository.create(transport);
                 admin.getAllAdministeredTransports().add(transport);
@@ -558,21 +559,26 @@ public class BookingSystem {
      */
     public boolean removeTransport(Administrator admin, int id) {
         Transport transport = this.transportRepository.get(id);
-        if (transport == null) {
-            return false;
-        } else if (admin.getAllAdministeredTransports().contains(transport)) {
-            admin.getAllAdministeredTransports().remove(transport);
-            this.personRepository.update(admin);
-            getAllTransportTickets(admin, id).forEach(ticket -> {
-                ticket.getCostumer().getAllTickets().remove(ticket);
-                //Rückerstattung des vollen Ticketpreises
-                addBalance(ticket.getCostumer(), ticket.getPrice());
-                this.personRepository.update(ticket.getCostumer());
-                this.ticketRepository.delete(ticket.getId());
-            });
-            this.transportRepository.delete(id);
-            return true;
-        } else return false;
+        if (transport != null) {
+            //Überprüfung, ob Administrator den Transport wirklich verwaltet
+            int count = (int) admin.getAllAdministeredTransports().stream()
+                    .filter(transport1 -> transport1.getId().equals(id)).count();
+            if (count == 1) {
+                admin.getAllAdministeredTransports().removeIf(transport1 -> transport1.getId().equals(transport.getId()));
+                this.personRepository.update(admin);
+                getAllTransportTickets(admin, id).forEach(ticket -> {
+                    Costumer costumer = (Costumer) this.personRepository.get(ticket.getCostumer().getId());
+                    costumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(ticket.getId()));
+                    //Rückerstattung des vollen Ticketpreises
+                    addBalance(costumer, ticket.getPrice());
+                    this.personRepository.update(costumer);
+                    this.ticketRepository.delete(ticket.getId());
+                });
+                this.transportRepository.delete(id);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -586,11 +592,30 @@ public class BookingSystem {
     public List<Ticket> getAllTransportTickets(Administrator admin, int id) {
         if (admin.isAdmin()) {
             Transport transport = this.transportRepository.get(id);
-            return switch (transport) {
-                case Bus bus -> bus.getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
-                case Train train -> train.getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
-                default -> null;
-            };
+            if (transport != null) {
+                switch (transport) {
+                    case Bus bus -> {
+                        List<Ticket> tickets = ((Bus) this.transportRepository.get(bus.getId())).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+                        List<Ticket> ticketList = new ArrayList<>();
+                        for (Ticket ticket : tickets) {
+                            ticketList.add(this.ticketRepository.get(ticket.getId()));
+                        }
+                        return ticketList;
+                    }
+                    case Train train -> {
+                        List<Ticket> tickets = ((Train) this.transportRepository.get(train.getId())).getBookedSeats().values().stream().collect(Collectors.toUnmodifiableList());
+                        List<Ticket> ticketList = new ArrayList<>();
+                        for (Ticket ticket : tickets) {
+                            ticketList.add(this.ticketRepository.get(ticket.getId()));
+                        }
+                        return ticketList;
+                    }
+                    default -> {
+                        return null;
+                    }
+                }
+            }
+
         }
         return null;
     }
@@ -615,8 +640,8 @@ public class BookingSystem {
     public List<Transport> getTransportsSortedByDuration() {
         return transportRepository.getAll().stream()
                 .sorted((t1, t2) -> Long.compare(
-                        java.time.Duration.between(t1.getDepartureTime(), t1.getArrivalTime()).toMinutes(),
-                        java.time.Duration.between(t2.getDepartureTime(), t2.getArrivalTime()).toMinutes()
+                        Duration.between(t1.getDepartureTime(), t1.getArrivalTime()).toMinutes(),
+                        Duration.between(t2.getDepartureTime(), t2.getArrivalTime()).toMinutes()
                 )).collect(Collectors.toList());
     }
 
@@ -627,22 +652,27 @@ public class BookingSystem {
      * @return Liste von Orten, sortiert nach der Gesamtanzahl der gebuchten Tickets.
      */
     public List<Location> getLocationsByTotalTickets() {
-        Map<Location, Long> locationTicketCountMap = new HashMap<>();
+        //Location-ID als Schlüssel da einzigartig und Anzahl gezählter Tickets als Wert
+        Map<Integer, Integer> locationTicketCountMap = new HashMap<>();
 
         // Zählt die Tickets für alle Transporte, die an einem Ort starten oder enden
         for (Transport transport : transportRepository.getAll()) {
-            long ticketCount = ticketRepository.getAll().stream()
-                    .filter(ticket -> ticket.getId() == transport.getId())
+            int ticketCount = (int) ticketRepository.getAll().stream()
+                    .filter(ticket -> ticket.getTransport().getId() == transport.getId())
                     .count();
-
-            locationTicketCountMap.merge(transport.getOrigin(), ticketCount, Long::sum);
-            locationTicketCountMap.merge(transport.getDestination(), ticketCount, Long::sum);
+            //Fügt die Summe der für diesen Transport gezählte Tickets zur Summe der für Abfahrts- und Ankunftsort bereits gezählten Tickets
+            locationTicketCountMap.merge((int) transport.getOrigin().getId(), ticketCount, Integer::sum);
+            locationTicketCountMap.merge((int) transport.getDestination().getId(), ticketCount, Integer::sum);
         }
 
-        // Sortiert die Orte nach der Gesamtanzahl der Tickets
-        return locationTicketCountMap.entrySet().stream()
-                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+        // Sortiert die Location-IDs nach der Gesamtanzahl der Tickets und wandelt Liste dann in Orts-Liste um
+        List<Integer> locationID = locationTicketCountMap.entrySet().stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getValue(), e1.getValue()))
+                .map(Map.Entry::getKey).toList();
+        List<Location> sortedLocations = new ArrayList<>();
+        for (int id : locationID) {
+            sortedLocations.add(locationRepository.get(id));
+        }
+        return sortedLocations;
     }
 }

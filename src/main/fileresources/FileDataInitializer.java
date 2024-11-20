@@ -15,14 +15,14 @@ public class FileDataInitializer {
         FileRepository<Ticket> ticketRepo = new FileRepository<>("src/main/fileresources/tickets.db");
 
         // Create instances of Administrator and Costumer, Location and Transport
-        Administrator admin1 = new Administrator("Admin_1", "admin1@gmail.com", "Adminpass123!");
-        Costumer customer1 = new Costumer("Markus", "markus@yahoo.com", "Pass1234");
+        Administrator admin1 = new Administrator("Admin", "admin@test.de", "test");
+        Costumer customer1 = new Costumer("Philipp", "philipp@test.de", "test");
         Costumer customer2 = new Costumer("Thomas", "thomas@hotmail.com", "Mypass123");
         Costumer customer3 = new Costumer("Bob", "bob@gmail.com", "Securepass123");
         Location location1= new Location(0,"Aurel Vlaicu","Cluj-Napoca");
         Location location2= new Location(1,"Mihai Viteazul","Sibiu");
         Transport transport1= new Bus(0, location1,location2,2023,12,13,14,0,17,0,20);
-        Transport transport2=new Train(1,location1,location2,2023,12,13,10,0,15,0,20,50);
+        Transport transport2= new Train(1,location1,location2,2023,12,13,10,0,15,0,20,50);
         admin1.getAllAdministeredTransports().add(transport1);
         admin1.getAllAdministeredTransports().add(transport2);
 
