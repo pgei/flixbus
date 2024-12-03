@@ -111,7 +111,7 @@ public class RequestHandler {
      */
     public void filterByPrice(int price) {
         StringBuilder out = new StringBuilder("--- Available transports with a maximum price of " + price + " Euro ---\n");
-        bookingSystem.getTransportsFilteredByPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
+        bookingSystem.getTransportsFilteredByMaxPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }
 
@@ -121,7 +121,7 @@ public class RequestHandler {
      */
     public void sortTransportsByDate() {
         StringBuilder out = new StringBuilder("--- Transports sorted by date (and departure time) ---\n");
-        bookingSystem.getTransportsSortedByDate().forEach(transport -> out.append(transport.toString()).append("\n"));
+        bookingSystem.getTransportsSortedByDateAscending().forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }
 
@@ -131,7 +131,7 @@ public class RequestHandler {
      */
     public void sortTransportsByDuration() {
         StringBuilder out = new StringBuilder("--- Transports sorted by duration (ascending) ---\n");
-        bookingSystem.getTransportsSortedByDuration().forEach(transport -> out.append(transport.toString()).append("\n"));
+        bookingSystem.getTransportsSortedByDurationAscending().forEach(transport -> out.append(transport.toString()).append("\n"));
         System.out.println(out);
     }
 
@@ -307,7 +307,7 @@ public class RequestHandler {
      */
     public void showLocationsByTotalTickets() {
         StringBuilder out = new StringBuilder("--- Locations sorted by total tickets ---\n");
-        bookingSystem.getLocationsByTotalTickets().forEach(location -> out.append(location.toString()).append("\n"));
+        bookingSystem.getLocationsSortedDescendingByTotalTickets().forEach(location -> out.append(location.toString()).append("\n"));
         System.out.println(out);
     }
 

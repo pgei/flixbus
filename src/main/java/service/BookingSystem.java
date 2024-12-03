@@ -117,9 +117,9 @@ public class BookingSystem {
      * Methode, die alle Transporte zurückgibt, welche an vorgegebenen Orten starten bzw. enden und noch freie Kapazität haben.
      * Dabei ist es auch möglich nur mit dem Abfahrtsort bzw. Ankunftsort zu filtern sowie, wenn keiner der beiden vorgegeben wurde, nur auf verfügbare Kapazität.
      *
-     * @param origin      ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
-     * @param destination ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
-     * @return Liste aller Transporte die Suchkriterien erfüllen
+     * @param origin        ID des Ortes, an dem der Transport starten muss (-1 bedeutet egal)
+     * @param destination   ID des Ortes, an dem der Transport enden muss (-1 bedeutet egal)
+     * @return              Liste aller Transporte die Suchkriterien erfüllen
      */
     public List<Transport> getTransportsFilteredByLocation(int origin, int destination) {
         if (origin == -1 && destination == -1) {
@@ -165,9 +165,9 @@ public class BookingSystem {
      * Methode, die alle Transporte zurückgibt, die noch freie Kapazität haben die zu einem Preis kleiner gleich dem gegebenem verkauft werden.
      *
      * @param price Maximaler Preis nach dem Transporte gefiltert werden sollen
-     * @return Liste aller Transporte, die das Suchkriterium erfüllen
+     * @return      Liste aller Transporte, die das Suchkriterium erfüllen
      */
-    public List<Transport> getTransportsFilteredByPrice(int price) {
+    public List<Transport> getTransportsFilteredByMaxPrice(int price) {
         List<Transport> filtered = new ArrayList<>();
         this.transportRepository.getAll().forEach(transport -> {
             if (transport instanceof Bus && transport.getCapacity() > 0 && price >= PRICE_BUS) {
@@ -251,18 +251,19 @@ public class BookingSystem {
      */
     public boolean createTicket(Costumer costumer, int transportid, int ticketclass) {
         Transport transport = this.transportRepository.get(transportid);
+        Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
         if (transport == null) {
             return false;
         } else {
             switch (transport) {
                 case Bus bus -> {
-                    return addBusTicket(costumer, bus);
+                    return addBusTicket(upToDateCostumer, bus);
                 }
                 case Train train when ticketclass == 1 -> {
-                    return addFirstClassTrainTicket(costumer, train);
+                    return addFirstClassTrainTicket(upToDateCostumer, train);
                 }
                 case Train train when ticketclass == 2 -> {
-                    return addSecondClassTrainTicket(costumer, train);
+                    return addSecondClassTrainTicket(upToDateCostumer, train);
                 }
                 default -> {
                     return false;
@@ -384,15 +385,16 @@ public class BookingSystem {
         }
         //Transport aktualisieren
         if (ticket.getTransport() instanceof Bus) {
-            removeTicketFromBusTransport(ticket);
+            removeTicketFromBusTransport(id);
         } else if (ticket.getTransport() instanceof Train) {
-            removeTicketFromTrainTransport(ticket);
+            removeTicketFromTrainTransport(id);
         } else return false;
         //Kunde aktualisieren
-        costumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(ticket.getId()));
+        Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
+        upToDateCostumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(id));
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
-        addBalance(costumer, (int) (ticket.getPrice() * 0.9));
-        this.personRepository.update(costumer);
+        addBalance(upToDateCostumer, (int) (ticket.getPrice() * 0.9));
+        this.personRepository.update(upToDateCostumer);
         this.ticketRepository.delete(id);
         return true;
     }
@@ -401,9 +403,10 @@ public class BookingSystem {
      * Methode, die ein gegebenes Ticket von einem Bustransport entfernt.
      * Wenn weitere Tickets auf dem Transport existieren, wird das neueste abgerufen und an Stelle des entfernten Tickets geschrieben.
      *
-     * @param ticket Ticket das entfernt werden soll
+     * @param id ID des Tickets das entfernt werden soll
      */
-    private void removeTicketFromBusTransport(Ticket ticket) {
+    private void removeTicketFromBusTransport(int id) {
+        Ticket ticket = this.ticketRepository.get(id);
         Bus transport = (Bus) this.transportRepository.get(ticket.getTransport().getId());
         HashMap<Integer, BusTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
@@ -415,7 +418,14 @@ public class BookingSystem {
             mapTickets.remove(changeticket.getSeat());
             changeticket.setSeat(ticket.getSeat());
             mapTickets.put(ticket.getSeat(), changeticket);
-
+            this.ticketRepository.update(changeticket);
+            Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+            costumer.getAllTickets().forEach(ticket1 -> {
+                if (ticket1.getId().equals(changeticket.getId())) {
+                    ticket1.setSeat(ticket.getSeat());
+                }
+             });
+            this.personRepository.update(costumer);
         }
         this.transportRepository.update(transport);
     }
@@ -424,9 +434,10 @@ public class BookingSystem {
      * Methode, die ein gegebenes Ticket von einem Zugtransport entfernt.
      * Wenn weitere Tickets auf dem Transport existieren, wird das neueste der aktuellen Klasse abgerufen und an Stelle des entfernten Tickets geschrieben.
      *
-     * @param ticket Ticket das entfernt werden soll
+     * @param id ID des Tickets das entfernt werden soll
      */
-    private void removeTicketFromTrainTransport(Ticket ticket) {
+    private void removeTicketFromTrainTransport(int id) {
+        Ticket ticket = this.ticketRepository.get(id);
         Train transport = (Train) this.transportRepository.get(ticket.getTransport().getId());
         HashMap<Integer, TrainTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
@@ -439,6 +450,14 @@ public class BookingSystem {
                 mapTickets.remove(changeticket.getSeat());
                 changeticket.setSeat(ticket.getSeat());
                 mapTickets.put(ticket.getSeat(), changeticket);
+                this.ticketRepository.update(changeticket);
+                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+                costumer.getAllTickets().forEach(ticket1 -> {
+                    if (ticket1.getId().equals(changeticket.getId())) {
+                        ticket1.setSeat(ticket.getSeat());
+                    }
+                });
+                this.personRepository.update(costumer);
             }
             this.transportRepository.update(transport);
         } else if (((TrainTicket) ticket).getTicketClass() == 2) {
@@ -449,6 +468,14 @@ public class BookingSystem {
                 mapTickets.remove(changeticket.getSeat());
                 changeticket.setSeat(ticket.getSeat());
                 mapTickets.put(ticket.getSeat(), changeticket);
+                this.ticketRepository.update(changeticket);
+                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+                costumer.getAllTickets().forEach(ticket1 -> {
+                    if (ticket1.getId().equals(changeticket.getId())) {
+                        ticket1.setSeat(ticket.getSeat());
+                    }
+                });
+                this.personRepository.update(costumer);
             }
             this.transportRepository.update(transport);
         }
@@ -503,8 +530,9 @@ public class BookingSystem {
                 //Transport erstellen und in Repository hinterlegen
                 Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
                 this.transportRepository.create(transport);
-                admin.getAllAdministeredTransports().add(transport);
-                this.personRepository.update(admin);
+                Administrator upToDateAdmin = (Administrator) this.personRepository.get(admin.getId());
+                upToDateAdmin.getAllAdministeredTransports().add(transport);
+                this.personRepository.update(upToDateAdmin);
                 return true;
             }
         }
@@ -540,8 +568,9 @@ public class BookingSystem {
                 //Transport erstellen und in Repository hinterlegen
                 Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
                 this.transportRepository.create(transport);
-                admin.getAllAdministeredTransports().add(transport);
-                this.personRepository.update(admin);
+                Administrator upToDateAdmin = (Administrator) this.personRepository.get(admin.getId());
+                upToDateAdmin.getAllAdministeredTransports().add(transport);
+                this.personRepository.update(upToDateAdmin);
                 return true;
             }
         }
@@ -561,11 +590,12 @@ public class BookingSystem {
         Transport transport = this.transportRepository.get(id);
         if (transport != null) {
             //Überprüfung, ob Administrator den Transport wirklich verwaltet
-            int count = (int) admin.getAllAdministeredTransports().stream()
+            Administrator upToDateAdmin = (Administrator) this.personRepository.get(admin.getId());
+            int count = (int) upToDateAdmin.getAllAdministeredTransports().stream()
                     .filter(transport1 -> transport1.getId().equals(id)).count();
             if (count == 1) {
-                admin.getAllAdministeredTransports().removeIf(transport1 -> transport1.getId().equals(transport.getId()));
-                this.personRepository.update(admin);
+                upToDateAdmin.getAllAdministeredTransports().removeIf(transport1 -> transport1.getId().equals(transport.getId()));
+                this.personRepository.update(upToDateAdmin);
                 getAllTransportTickets(admin, id).forEach(ticket -> {
                     Costumer costumer = (Costumer) this.personRepository.get(ticket.getCostumer().getId());
                     costumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(ticket.getId()));
@@ -625,7 +655,7 @@ public class BookingSystem {
      *
      * @return Liste von Transportobjekten sortiert nach dem Abfahrtsdatum.
      */
-    public List<Transport> getTransportsSortedByDate() {
+    public List<Transport> getTransportsSortedByDateAscending() {
         return transportRepository.getAll().stream()
                 .sorted(Comparator.comparing(Transport::getDate).thenComparing(Transport::getDepartureTime))
                 .collect(Collectors.toList());
@@ -637,7 +667,7 @@ public class BookingSystem {
      *
      * @return Liste von Transportobjekten, sortiert nach der Dauer der Fahrt.
      */
-    public List<Transport> getTransportsSortedByDuration() {
+    public List<Transport> getTransportsSortedByDurationAscending() {
         return transportRepository.getAll().stream()
                 .sorted((t1, t2) -> Long.compare(
                         Duration.between(t1.getDepartureTime(), t1.getArrivalTime()).toMinutes(),
@@ -651,7 +681,7 @@ public class BookingSystem {
      *
      * @return Liste von Orten, sortiert nach der Gesamtanzahl der gebuchten Tickets.
      */
-    public List<Location> getLocationsByTotalTickets() {
+    public List<Location> getLocationsSortedDescendingByTotalTickets() {
         //Location-ID als Schlüssel da einzigartig und Anzahl gezählter Tickets als Wert
         Map<Integer, Integer> locationTicketCountMap = new HashMap<>();
 
