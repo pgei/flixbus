@@ -1,6 +1,7 @@
 package main.java;
 
 import main.java.controller.RequestHandler;
+import main.java.exceptions.ValidationException;
 import main.java.model.*;
 import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
@@ -37,8 +38,10 @@ public class App {
 
     /**
      * Startet die Anwendung und zeigt die Hauptmenüs basierend auf dem Benutzerstatus an.
+     *
+     * @throws ClassNotFoundException   Wenn Nutzer einer unbekannten Klasse unter dem Person-Attribut gespeichert wird
      */
-    public void start() {
+    public void start() throws ClassNotFoundException {
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println("++ Welcome to the Transport Booking System! ++");
         System.out.println("++++++++++++++++++++++++++++++++++++++++++++++");
@@ -47,14 +50,28 @@ public class App {
 
         while (running) {
             switch (this.person) {
-                case null -> running = startScreen(scanner);
-                case Costumer costumer -> costumerScreen(scanner);
-                case Administrator administrator -> administratorScreen(scanner);
-                default -> {
-                    System.out.println("Error: User of unexpected class "+this.person.getClass());
-                    System.out.println("Shutting down the system.");
-                    running = false;
+                case null -> {
+                    try{
+                        running = startScreen(scanner);
+                    } catch (ValidationException e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
+                case Costumer costumer -> {
+                    try{
+                        costumerScreen(scanner);
+                    } catch (ValidationException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                case Administrator administrator -> {
+                    try{
+                        administratorScreen(scanner);
+                    } catch (ValidationException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                default -> throw new ClassNotFoundException("User of unexpected class "+this.person.getClass());
             }
 
         }
@@ -65,8 +82,9 @@ public class App {
      *
      * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
      * @return Wahr, wenn die App weiterhin laufen soll, false, wenn sie beendet werden soll
+     * @throws ValidationException Wenn ungültige Eingabe durch den Nutzer gemacht wurde
      */
-    private boolean startScreen(Scanner scanner) {
+    private boolean startScreen(Scanner scanner) throws ValidationException {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
         System.out.println("1. Register");
@@ -109,13 +127,11 @@ public class App {
                     System.out.println("Exiting the system. Goodbye!");
                     return false;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
-                    break;
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
             return true;
         } catch (NumberFormatException e) {
-            System.out.println("Invalid choice. Please try again.");
-            return true;
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -123,8 +139,9 @@ public class App {
      * Zeigt das Menü für Kunden an, nachdem sie sich angemeldet haben.
      *
      * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException Wenn ungültige Eingabe durch den Nutzer gemacht wurde
      */
-    private void costumerScreen(Scanner scanner) {
+    private void costumerScreen(Scanner scanner) throws ValidationException {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
         System.out.println("1. View transports");
@@ -181,10 +198,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            System.out.println("Invalid choice. Please try again.");
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -192,8 +209,9 @@ public class App {
      * Zeigt das Menü für Administratoren an, nachdem sie sich angemeldet haben.
      *
      * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException Wenn ungültige Eingabe durch den Nutzer gemacht wurde
      */
-    private void administratorScreen(Scanner scanner) {
+    private void administratorScreen(Scanner scanner) throws ValidationException {
         System.out.println("\n++++++++++++++++++++++++++++");
         System.out.println("Please select an option:");
         System.out.println("1. View transports");
@@ -250,10 +268,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            System.out.println("Invalid choice. Please try again.");
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -261,8 +279,9 @@ public class App {
      * Registriert einen neuen Benutzer, entweder als Kunde oder als Administrator.
      *
      * @param scanner Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException Wenn beim Erstellen eines Administrator-Kontos ein fehlerhafter Schlüssel angegeben wurde oder die Frage, ob ein Administrator-Konto erstellt werden soll, ungültig beantwortet wird
      */
-    private void register(Scanner scanner) {
+    private void register(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Register ---");
         System.out.println("Enter username: ");
         String username = scanner.nextLine();
@@ -278,10 +297,12 @@ public class App {
             if (key.equals("geheim1234")) {
                 this.requestHandler.registerAsAdministrator(username, email, password);
             } else {
-                System.out.println("Wrong key, administrator account generation request denied!");
+                throw new ValidationException("Wrong key, administrator account generation request denied!");
             }
-        } else {
+        } else if (admin.equals("No")) {
             this.requestHandler.registerAsCostumer(username, email, password);
+        } else {
+            throw new ValidationException("Invalid choice, choose between Yes or No!");
         }
     }
 
@@ -324,8 +345,9 @@ public class App {
      * </ul>
      *
      * @param scanner                Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException   Wenn Nutzer keine existierende Klasse eingibt
      */
-    public void buyTicketRequest(Scanner scanner) {
+    public void buyTicketRequest(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Buy ticket ---");
         System.out.println("Enter ID for transport on which you would like to reserve a ticket: ");
         int transportid = Integer.parseInt(scanner.nextLine());
@@ -337,16 +359,13 @@ public class App {
                 \t - 1st for 50 Euro
                 \t - 2nd for 15 Euro""");
         System.out.println("Enter class you would like to book (1/2): ");
-        try {
-            int ticketclass = Integer.parseInt(scanner.nextLine());
-            if (ticketclass == 1 || ticketclass == 2) {
-                this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
-            } else {
-                System.out.println("No correct class was entered, please try again!");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("No correct class was entered, please try again!");
+        int ticketclass = Integer.parseInt(scanner.nextLine());
+        if (ticketclass == 1 || ticketclass == 2) {
+            this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
+        } else {
+            throw new ValidationException("Invalid choice, only classes 1 and 2 exist!");
         }
+
     }
 
     /**
@@ -378,9 +397,10 @@ public class App {
     /**
      * Fügt einen neuen Transport in das System ein.
      *
-     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException  Wenn Nutzer kein existierendes Transportmittel eingibt
      */
-    public void addTransport(Scanner scanner) {
+    public void addTransport(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Add transport ---");
         System.out.println("Enter location ID of origin: ");
         int originid = Integer.parseInt(scanner.nextLine());
@@ -413,7 +433,7 @@ public class App {
             int secondcapacity = Integer.parseInt(scanner.nextLine());
             this.requestHandler.addTrainTransport((Administrator) this.person, originid, destinationid, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
         } else {
-            System.out.println("No correct means of transport was entered, please try again!");
+            throw new ValidationException("Invalid means of transport, only Bus and Train exist!");
         }
     }
 
@@ -471,8 +491,9 @@ public class App {
      * Die Hauptmethode zum Starten der App.
      *
      * @param args Argumente der Kommandozeile.
+     * @throws ClassNotFoundException Wenn Nutzer einer unbekannten Klasse unter dem Person-Attribut gespeichert wird
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         if (repositorySource == 0) {
             IRepository<Person> personRepository = createInMemoryPersonRepository();
             IRepository<Transport> transportRepository = createInMemoryTransportRepository();
