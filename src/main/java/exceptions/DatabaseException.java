@@ -3,7 +3,7 @@ package main.java.exceptions;
 /**
  * Ausnahmeklasse für Fehler, die während der Datenbankoperationen auftreten
  */
-public class DatabaseException extends Exception {
+public class DatabaseException extends RuntimeException {
 
   /**
    * Konstruktor der Ausnahmeklasse

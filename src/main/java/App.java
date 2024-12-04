@@ -127,11 +127,11 @@ public class App {
                     System.out.println("Exiting the system. Goodbye!");
                     return false;
                 default:
-                    throw new ValidationException("Invalid choice of option, please try again!");
+                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
             }
             return true;
         } catch (NumberFormatException e) {
-            throw new ValidationException("Invalid choice, please only enter an integer number!");
+            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -198,10 +198,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    throw new ValidationException("Invalid choice of option, please try again!");
+                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            throw new ValidationException("Invalid choice, please only enter an integer number!");
+            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -268,10 +268,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    throw new ValidationException("Invalid choice of option, please try again!");
+                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            throw new ValidationException("Invalid choice, please only enter an integer number!");
+            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -297,12 +297,12 @@ public class App {
             if (key.equals("geheim1234")) {
                 this.requestHandler.registerAsAdministrator(username, email, password);
             } else {
-                throw new ValidationException("Wrong key, administrator account generation request denied!");
+                throw new ValidationException("ValidationException: Wrong key, administrator account generation request denied!");
             }
         } else if (admin.equals("No")) {
             this.requestHandler.registerAsCostumer(username, email, password);
         } else {
-            throw new ValidationException("Invalid choice, choose between Yes or No!");
+            throw new ValidationException("ValidationException: Invalid choice, choose between Yes or No!");
         }
     }
 
@@ -363,7 +363,7 @@ public class App {
         if (ticketclass == 1 || ticketclass == 2) {
             this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
         } else {
-            throw new ValidationException("Invalid choice, only classes 1 and 2 exist!");
+            throw new ValidationException("ValidationException: Invalid choice, only classes 1 and 2 exist!");
         }
 
     }
@@ -433,7 +433,7 @@ public class App {
             int secondcapacity = Integer.parseInt(scanner.nextLine());
             this.requestHandler.addTrainTransport((Administrator) this.person, originid, destinationid, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
         } else {
-            throw new ValidationException("Invalid means of transport, only Bus and Train exist!");
+            throw new ValidationException("ValidationException: Invalid means of transport, only Bus and Train exist!");
         }
     }
 

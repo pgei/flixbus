@@ -1,6 +1,7 @@
 package main.java.repository;
 
 import main.java.database.DatabaseConnection;
+import main.java.exceptions.DatabaseException;
 import main.java.model.ID;
 
 import java.sql.*;
@@ -32,14 +33,14 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * {@inheritDoc}
      */
     @Override
-    public void create(T object) {
+    public void create(T object) throws DatabaseException {
         String sql = "INSERT INTO " + tableName + " VALUES (?, ?, ?, ?)"; // Adjust columns and parameters as needed
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             setStatementParameters(stmt, object);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error creating entry in " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("DatabaseException: Error creating entry in " + tableName + ": " + e.getMessage());
         }
     }
 
@@ -47,7 +48,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * {@inheritDoc}
      */
     @Override
-    public T get(Object id) {
+    public T get(Object id) throws DatabaseException {
         String sql = "SELECT * FROM " + tableName + " WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -58,7 +59,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error fetching entry with ID " + id + " from " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("DatabaseException: Error fetching entry with ID " + id + " from " + tableName + ": " + e.getMessage());
         }
         return null;
     }
@@ -67,7 +68,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * {@inheritDoc}
      */
     @Override
-    public void update(T object) {
+    public void update(T object) throws DatabaseException {
         String sql = "UPDATE " + tableName + " SET column1 = ?, column2 = ?, column3 = ? WHERE id = ?"; // Adjust columns
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -75,7 +76,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
             stmt.setObject(4, object.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error updating entry with ID " + object.getId() + " in " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("DatabaseException: Error updating entry with ID " + object.getId() + " in " + tableName + ": " + e.getMessage());
         }
     }
 
@@ -83,14 +84,14 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * {@inheritDoc}
      */
     @Override
-    public void delete(Object id) {
+    public void delete(Object id) throws DatabaseException {
         String sql = "DELETE FROM " + tableName + " WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error deleting entry with ID " + id + " from " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("Error deleting entry with ID " + id + " from " + tableName + ": " + e.getMessage());
         }
     }
 
@@ -98,7 +99,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * {@inheritDoc}
      */
     @Override
-    public List<T> getAll() {
+    public List<T> getAll() throws DatabaseException {
         String sql = "SELECT * FROM " + tableName;
         List<T> resultList = new ArrayList<>();
         try (Connection conn = DatabaseConnection.getConnection();
@@ -108,7 +109,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
                 resultList.add(mapper.map(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Error fetching all entries from " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("Error fetching all entries from " + tableName + ": " + e.getMessage());
         }
         return resultList;
     }
@@ -127,7 +128,7 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * @param stmt   Das vorbereitete SQL-Statement.
      * @param object Das Objekt, das die einzufügenden Werte enthält.
      */
-    private void setStatementParameters(PreparedStatement stmt, T object) throws SQLException {
+    private void setStatementParameters(PreparedStatement stmt, T object) throws DatabaseException {
         // Beispiel: Anpassung basierend auf der Struktur des Objekts
         // stmt.setObject(1, object.getField1());
         // stmt.setObject(2, object.getField2());
