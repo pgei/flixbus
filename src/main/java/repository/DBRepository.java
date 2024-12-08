@@ -3,6 +3,7 @@ package main.java.repository;
 import main.java.database.DatabaseConnection;
 import main.java.exceptions.DatabaseException;
 import main.java.model.ID;
+import main.java.repository.mappers.EntityMapper;
 
 import java.sql.*;
 import java.util.ArrayList;
