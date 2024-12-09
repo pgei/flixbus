@@ -464,10 +464,11 @@ public class App {
     /**
      * Filtert Transporte basierend auf einem angegebenen Ursprungs- und Zielort.
      *
-     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
      */
     public void filterTransportsByLocation(Scanner scanner) {
         System.out.println("\n--- Filter transports by location ---");
+        this.requestHandler.viewAllDestinations();
         System.out.println("Enter location ID for origin (type -1 to select all available locations as origin): ");
         int origin = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter location ID for destination (type -1 to select all available locations as destination): ");
