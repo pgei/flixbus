@@ -297,7 +297,7 @@ public class BookingSystem {
      */
     public void createTicket(Costumer costumer, int transportid, int ticketclass) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         Transport transport = this.transportRepository.get(transportid);
-        if (transport == null) throw new EntityNotFoundException("EntityNotFoundException: There do not exist any transport with the entered ID!");
+        if (transport == null) throw new EntityNotFoundException("EntityNotFoundException: There does not exist any transport with the entered ID!");
         Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
         if (upToDateCostumer == null) {
             throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
@@ -582,12 +582,13 @@ public class BookingSystem {
      * @param houra                     Stunde, zu der der Transport endet
      * @param mina                      Minute, zu der der Transport endet
      * @param capacity                  Anzahl der Sitzplätze die der Bus hat
-     * @throws BusinessLogicException   Wenn Nutzer kein Administrator ist
+     * @throws BusinessLogicException   Wenn Nutzer kein Administrator ist oder Start- und Zielort der gleiche sind
      * @throws EntityNotFoundException  Wenn ID eines Ortes nicht im Repository existiert
      * @throws DatabaseException        Wenn ein Fehler bei einer Datenbankoperation im Repository auftritt
      */
     public void createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         if (admin.isAdmin()) {
+            if (originid == destinationid) throw new BusinessLogicException("BusinessLogicException: Origin and destination cannot be the same location!");
             Location origin = this.locationRepository.get(originid);
             Location destination = this.locationRepository.get(destinationid);
             if (origin != null && destination != null) {
@@ -604,7 +605,7 @@ public class BookingSystem {
                 throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered destination ID!");
             } else if (destination != null) {
                 throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered origin ID!");
-            } else throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!\"");
+            } else throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!");
         } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
     }
 
@@ -630,6 +631,7 @@ public class BookingSystem {
      */
     public void createTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         if (admin.isAdmin()) {
+            if (originid == destinationid) throw new BusinessLogicException("BusinessLogicException: Origin and destination cannot be the same location!");
             Location origin = this.locationRepository.get(originid);
             Location destination = this.locationRepository.get(destinationid);
             if (origin != null && destination != null) {
@@ -647,7 +649,7 @@ public class BookingSystem {
             } else if (destination != null) {
                 throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered origin ID!");
             } else
-                throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!\"");
+                throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!");
         } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
     }
 
