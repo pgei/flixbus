@@ -1,10 +1,6 @@
 package main.java.repository.mappers;
 
-import main.java.model.BusTicket;
-import main.java.model.Costumer;
-import main.java.model.Ticket;
-import main.java.model.Transport;
-import main.java.model.TrainTicket;
+import main.java.model.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,24 +20,22 @@ public class TicketMapper implements EntityMapper<Ticket> {
      * @return Das erstellte {@link Ticket}-Objekt (Bus- oder Zugticket).
      * @throws SQLException Wenn ein Fehler beim Zugriff auf die Datenbank auftritt.
      */
+    private final PersonMapper personMapper = new PersonMapper();
+    private final TransportMapper transportMapper = new TransportMapper();
+
     @Override
     public Ticket map(ResultSet resultSet) throws SQLException {
-        int ticketId = resultSet.getInt("id");
+        int ticketId = resultSet.getInt("ticket_id");
+        Costumer customer = (Costumer) personMapper.map(resultSet);
+        Transport transport = transportMapper.map(resultSet);
         int price = resultSet.getInt("price");
-        int seat = resultSet.getInt("seat");
-        int transportId = resultSet.getInt("transport_id");
-        int customerId = resultSet.getInt("customer_id");
+        int seatNumber = resultSet.getInt("seat_number");
 
-        Transport transport = new TransportMapper().map(resultSet);
-        Costumer customer = new PersonMapper().mapCustomer(resultSet); // Spezifische Methode für Kunden
-
-        String type = resultSet.getString("type");
-
-        if ("bus".equalsIgnoreCase(type)) {
-            return new BusTicket(ticketId, customer, transport, price, seat);
-        } else if ("train".equalsIgnoreCase(type)) {
-            int ticketClass = resultSet.getInt("ticket_class");
-            return new TrainTicket(ticketId, customer, transport, price, seat, ticketClass);
+        if (transport instanceof Bus) {
+            return new BusTicket(ticketId, customer, transport, price, seatNumber);
+        } else if (transport instanceof Train) {
+            int ticketClass = resultSet.getInt("ticket_class"); // Needs an additional column in schema for class.
+            return new TrainTicket(ticketId, customer, transport, price, seatNumber, ticketClass);
         }
 
         return null;

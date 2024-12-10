@@ -24,21 +24,18 @@ public class PersonMapper implements EntityMapper<Person> {
      */
     @Override
     public Person map(ResultSet resultSet) throws SQLException {
-        int id = resultSet.getInt("id");
-        String type = resultSet.getString("type");
-        String name = resultSet.getString("name");
+        int id = resultSet.getInt("person_id");
+        String username = resultSet.getString("username");
         String email = resultSet.getString("email");
         String password = resultSet.getString("password");
+        boolean isAdmin = resultSet.getBoolean("is_admin");
 
-        if ("admin".equalsIgnoreCase(type)) {
-            // Erstellen eines Administrator-Objekts
-            return new Administrator(name, email, password);
-        } else if ("customer".equalsIgnoreCase(type)) {
-            // Erstellen eines Kunden-Objekts
-            return new Costumer(name, email, password);
+        if (isAdmin) {
+            return new Administrator(username, email, password);
+        } else {
+            return new Costumer(username, email, password);
         }
 
-        return null;
     }
 
     /**

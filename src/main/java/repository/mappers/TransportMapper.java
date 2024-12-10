@@ -1,9 +1,9 @@
 package main.java.repository.mappers;
 
 import main.java.model.Bus;
-import main.java.model.Transport;
-import main.java.model.Train;
 import main.java.model.Location;
+import main.java.model.Train;
+import main.java.model.Transport;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,30 +27,41 @@ public class TransportMapper implements EntityMapper<Transport> {
      */
     @Override
     public Transport map(ResultSet resultSet) throws SQLException {
-        int id = resultSet.getInt("id");
-        String type = resultSet.getString("type");
+        int id = resultSet.getInt("transport_id");
+        Location origin = locationMapper.map(resultSet, "origin_id");
+        Location destination = locationMapper.map(resultSet, "destination_id");
 
-        // Locations erstellen
-        Location origin = locationMapper.map(resultSet, "from");
-        Location destination = locationMapper.map(resultSet, "to");
+        // Datum aufteilen
+        java.sql.Date sqlDate = resultSet.getDate("date");
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.setTime(sqlDate);
+        int year = calendar.get(java.util.Calendar.YEAR);
+        int month = calendar.get(java.util.Calendar.MONTH) + 1; // Kalender-Monat ist 0-basiert
+        int day = calendar.get(java.util.Calendar.DAY_OF_MONTH);
 
-        // Zeit und Datum des Transports
-        int year = resultSet.getInt("year");
-        int month = resultSet.getInt("month");
-        int day = resultSet.getInt("day");
-        int hourd = resultSet.getInt("hour_departure");
-        int mind = resultSet.getInt("minute_departure");
-        int houra = resultSet.getInt("hour_arrival");
-        int mina = resultSet.getInt("minute_arrival");
+        // Abfahrts- und Ankunftszeit aufteilen
+        java.sql.Time sqlDepartureTime = resultSet.getTime("departure_time");
+        java.sql.Time sqlArrivalTime = resultSet.getTime("arrival_time");
+        java.util.Calendar departureCalendar = java.util.Calendar.getInstance();
+        departureCalendar.setTime(sqlDepartureTime);
+        int hourd = departureCalendar.get(java.util.Calendar.HOUR_OF_DAY);
+        int mind = departureCalendar.get(java.util.Calendar.MINUTE);
 
-        // Unterscheidung zwischen Bus und Zug
-        if ("bus".equalsIgnoreCase(type)) {
+        java.util.Calendar arrivalCalendar = java.util.Calendar.getInstance();
+        arrivalCalendar.setTime(sqlArrivalTime);
+        int houra = arrivalCalendar.get(java.util.Calendar.HOUR_OF_DAY);
+        int mina = arrivalCalendar.get(java.util.Calendar.MINUTE);
+
+        // Transporttyp ermitteln
+        String type = resultSet.getString("transport_type");
+
+        if ("BUS".equalsIgnoreCase(type)) {
             int capacity = resultSet.getInt("capacity");
             return new Bus(id, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
-        } else if ("train".equalsIgnoreCase(type)) {
-            int firstCapacity = resultSet.getInt("first_class_capacity");
-            int secondCapacity = resultSet.getInt("second_class_capacity");
-            return new Train(id, origin, destination, year, month, day, hourd, mind, houra, mina, firstCapacity, secondCapacity);
+        } else if ("TRAIN".equalsIgnoreCase(type)) {
+            int firstClassCapacity = resultSet.getInt("first_class_capacity");
+            int secondClassCapacity = resultSet.getInt("second_class_capacity");
+            return new Train(id, origin, destination, year, month, day, hourd, mind, houra, mina, firstClassCapacity, secondClassCapacity);
         }
 
         return null;
