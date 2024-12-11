@@ -22,7 +22,7 @@ public class DatabaseConnection {
     /**
      * Das Passwort der Datenbank.
      */
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "Unknown2451!";
 
     /**
      * Gibt eine {@link Connection} zur Datenbank zurück.

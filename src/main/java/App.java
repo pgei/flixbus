@@ -7,7 +7,6 @@ import main.java.repository.DBRepository;
 import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
-import main.java.repository.mappers.PersonMapper;
 import main.java.service.BookingSystem;
 
 import java.util.Scanner;
@@ -27,7 +26,7 @@ public class App {
      *     <li>2: DBRepository</li>
      * </ul>
      */
-    private final static int repositorySource = 1;
+    private final static int repositorySource = 2;
     private final RequestHandler requestHandler;
     private Person person;
 
@@ -516,8 +515,17 @@ public class App {
             App application = new App(requestHandler);
             application.start();
         } else if (repositorySource == 2) {
-            //todo: here goes the code to initialize the DBRepositories
+            //TO-DO
+            /*
             IRepository<Person> personRepository = new DBRepository<>("Person", new PersonMapper());
+            IRepository<Location> locationRepository = new DBRepository<>("Location", new LocationMapper());
+            IRepository<Transport> transportRepository = new DBRepository<>("Transport", new TransportMapper());
+            IRepository<Ticket> ticketRepository = new DBRepository<>("Ticket", new TicketMapper());
+
+            BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
+            RequestHandler requestHandler = new RequestHandler(bookingSystem);
+            App application = new App(requestHandler);
+            application.start();*/
         }
     }
 
