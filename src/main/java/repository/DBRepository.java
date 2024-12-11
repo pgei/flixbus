@@ -183,33 +183,50 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * @throws SQLException Wenn ein Fehler auftritt.
      */
     private void setStatementParameters(PreparedStatement stmt, T object) throws SQLException {
-        /*if (object instanceof Person) {
-            Person person = (Person) object;
-            stmt.setString(1, person.getUsername());
-            stmt.setString(2, person.getEmail());
-            stmt.setString(3, person.getPassword());
-            stmt.setBoolean(4, person.isAdmin());
-        } else if (object instanceof Location) {
+        if (object instanceof Administrator) {
+            Administrator admin = (Administrator) object;
+            stmt.setString(1, admin.getUsername());
+            stmt.setString(2, (String) admin.getId());
+            stmt.setString(3, admin.isAuthentic("password") ? "password" : "");
+            stmt.setBoolean(4, true);
+        } else if (object instanceof Costumer) {
+            Costumer customer = (Costumer) object;
+            stmt.setString(1, customer.getUsername());
+            stmt.setString(2, (String) customer.getId());
+            stmt.setString(3, customer.isAuthentic("password") ? "password" : "");
+            stmt.setBoolean(4, false);
+        }else if (object instanceof Location) {
             Location location = (Location) object;
             stmt.setString(1, location.getStreet());
             stmt.setString(2, location.getCity());
+        } else if (object instanceof Transport) {
+            Transport transport = (Transport) object;
+            stmt.setInt(1, (int) transport.getOrigin().getId());
+            stmt.setInt(2, (int) transport.getDestination().getId());
+            stmt.setDate(3, java.sql.Date.valueOf(transport.getDate()));
+            stmt.setTime(4, java.sql.Time.valueOf(transport.getDepartureTime()));
+            stmt.setTime(5, java.sql.Time.valueOf(transport.getArrivalTime()));
+            stmt.setString(6, transport instanceof Bus ? "BUS" : "TRAIN");
         } else if (object instanceof Bus) {
             Bus bus = (Bus) object;
-            stmt.setInt(1, bus.getId());
+            stmt.setInt(1, (int) bus.getId());
             stmt.setInt(2, bus.getCapacity());
         } else if (object instanceof Train) {
             Train train = (Train) object;
-            stmt.setInt(1, train.getId());
-            stmt.setInt(2, train.getFirstClassCapacity());
-            stmt.setInt(3, train.getSecondClassCapacity());
+            stmt.setInt(1, (int) train.getId());
+            stmt.setInt(2, train.getFirstCapacity());
+            stmt.setInt(3, train.getSecondCapacity());
         } else if (object instanceof Ticket) {
             Ticket ticket = (Ticket) object;
-            stmt.setInt(1, ticket.getCustomer().getId());
-            stmt.setInt(2, ticket.getTransport().getId());
+            stmt.setInt(1, (int) ticket.getCostumer().getId());
+            stmt.setInt(2, (int) ticket.getTransport().getId());
             stmt.setDouble(3, ticket.getPrice());
             stmt.setInt(4, ticket.getSeat());
-        }*/
+        } else {
+            throw new SQLException("Unbekanntes Objekt für das Statement: " + object.getClass().getName());
+        }
     }
+
 
     /**
      * Liefert die Anzahl der Parameter für die Abfrage.

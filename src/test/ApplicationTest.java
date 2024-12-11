@@ -1,5 +1,6 @@
 package test;
 
+import main.java.database.DatabaseConnection;
 import main.java.exceptions.BusinessLogicException;
 import main.java.exceptions.EntityNotFoundException;
 import main.java.model.*;
@@ -8,6 +9,11 @@ import main.java.repository.InMemoryRepository;
 import main.java.service.BookingSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,6 +69,42 @@ public class ApplicationTest {
         personIRepository.create(costumer1);
         bookingSystem = new BookingSystem(personIRepository, transportIRepository, ticketIRepository, locationIRepository);
     }
+
+    @Test
+    void testInsertNewAdministratorIntoDatabase() throws SQLException {
+        // Arrange
+        String username = "John";
+        String email = "john@test.de";
+        String password = "secret";
+        boolean isAdmin = true;  // Administrator
+
+        // Get the database connection
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            // Insert new administrator
+            String insertAdminQuery = "INSERT INTO Person (username, email, password, is_admin) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(insertAdminQuery)) {
+                stmt.setString(1, username);
+                stmt.setString(2, email);
+                stmt.setString(3, password);
+                stmt.setBoolean(4, isAdmin);  // Set is_admin as true for administrator
+                stmt.executeUpdate();
+            }
+
+            // Verify if the administrator was inserted correctly
+            String selectQuery = "SELECT * FROM Person WHERE email = ?";
+            try (PreparedStatement stmt = connection.prepareStatement(selectQuery)) {
+                stmt.setString(1, email);
+                ResultSet rs = stmt.executeQuery();
+
+                assertTrue(rs.next());
+                assertEquals(username, rs.getString("username"));
+                assertEquals(email, rs.getString("email"));
+                assertEquals(password, rs.getString("password"));
+                assertTrue(rs.getBoolean("is_admin"));  // Check if the person is an admin
+            }
+        }
+    }
+
 
     @Test
     void testRegisterAdministratorWithNewEmail() {
