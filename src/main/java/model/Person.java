@@ -38,6 +38,15 @@ public abstract class Person implements ID {
     public String getUsername() {return this.username;}
 
     /**
+     * Getter für Passwort der Person
+     *
+     * @return Passwort der Person
+     */
+    public String getPassword() {
+        return this.password;
+    }
+
+    /**
      * Methode die kontrolliert, ob ein gegebener String dem Passwort der Person entspricht.
      * Vorgesehen zur Nutzung bei Anmeldung eines Nutzers, um die Authentizität zu überprüfen.
      *
