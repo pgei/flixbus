@@ -3,6 +3,7 @@ package test;
 import main.java.exceptions.BusinessLogicException;
 import main.java.exceptions.EntityNotFoundException;
 import main.java.model.*;
+import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
 import main.java.service.BookingSystem;
@@ -62,6 +63,38 @@ public class ApplicationTest {
         personIRepository.create(costumer);
         personIRepository.create(costumer1);
         bookingSystem = new BookingSystem(personIRepository, transportIRepository, ticketIRepository, locationIRepository);
+    }
+
+    @Test
+    void testCRUDOperationsInMemoryRepository() {
+        assertDoesNotThrow(() -> {
+            IRepository<Person> personRepository = new InMemoryRepository<>();
+            personRepository.create(new Costumer("Rainer", "rainer.zufall@test.de", "geheim"));
+            assertEquals(1, personRepository.getAll().size());
+            assertEquals("Rainer", personRepository.get("rainer.zufall@test.de").getUsername());
+            personRepository.update(new Costumer("Zufall", "rainer.zufall@test.de", "geheim"));
+            assertEquals(1, personRepository.getAll().size());
+            assertEquals("Zufall", personRepository.get("rainer.zufall@test.de").getUsername());
+            personRepository.delete("rainer.zufall@test.de");
+            assertNull(personRepository.get("rainer.zufall@test.de"));
+            assertEquals(0, personRepository.getAll().size());
+        });
+    }
+
+    @Test
+    void testCRUDOperationsFileRepository() {
+        assertDoesNotThrow(() -> {
+            IRepository<Person> personRepository = new FileRepository<>("src/test/persons.db");
+            personRepository.create(new Costumer("Rainer", "rainer.zufall@test.de", "geheim"));
+            assertEquals(1, personRepository.getAll().size());
+            assertEquals("Rainer", personRepository.get("rainer.zufall@test.de").getUsername());
+            personRepository.update(new Costumer("Zufall", "rainer.zufall@test.de", "geheim"));
+            assertEquals(1, personRepository.getAll().size());
+            assertEquals("Zufall", personRepository.get("rainer.zufall@test.de").getUsername());
+            personRepository.delete("rainer.zufall@test.de");
+            assertNull(personRepository.get("rainer.zufall@test.de"));
+            assertEquals(0, personRepository.getAll().size());
+        });
     }
 
     @Test

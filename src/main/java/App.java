@@ -3,9 +3,11 @@ package main.java;
 import main.java.controller.RequestHandler;
 import main.java.exceptions.ValidationException;
 import main.java.model.*;
+import main.java.repository.DBRepository;
 import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
+import main.java.repository.mappers.PersonMapper;
 import main.java.service.BookingSystem;
 
 import java.util.Scanner;
@@ -513,6 +515,9 @@ public class App {
             RequestHandler requestHandler = new RequestHandler(bookingSystem);
             App application = new App(requestHandler);
             application.start();
+        } else if (repositorySource == 2) {
+            //todo: here goes the code to initialize the DBRepositories
+            IRepository<Person> personRepository = new DBRepository<>("Person", new PersonMapper());
         }
     }
 
