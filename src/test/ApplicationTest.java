@@ -1,20 +1,13 @@
 package test;
 
-import main.java.database.DatabaseConnection;
 import main.java.exceptions.BusinessLogicException;
 import main.java.exceptions.EntityNotFoundException;
 import main.java.model.*;
-import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
 import main.java.service.BookingSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 

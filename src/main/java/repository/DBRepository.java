@@ -78,19 +78,75 @@ public class DBRepository<T extends ID> implements IRepository<T> {
         return results;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public void create(T object) throws DatabaseException {
-        String sql = generateInsertQuery();
+        switch (object.getClass().getName()) {
+            case "Administrator":
+                Administrator administrator = (Administrator) object;
+                executeInsert(generateInsertQuery("Person"), object, "Person");
+                executeInsert(generateInsertQuery("Admin"), object, "Admin");
+                administrator.getAllAdministeredTransports().forEach(transport -> {
+                    executeInsert(generateInsertQuery("AdminTransport"), (T) transport, "AdminTransport", (String) administrator.getId());
+                });
+            case "Costumer":
+                Costumer costumer = (Costumer) object;
+                executeInsert(generateInsertQuery("Person"), object, "Person");
+                executeInsert(generateInsertQuery("Costumer"), object, "Costumer");
+                costumer.getAllTickets().forEach(ticket -> {
+                    executeInsert(generateInsertQuery("CostumerTicket"), (T) ticket, "CostumerTicket", (String) costumer.getId());
+                });
+            case "Bus":
+                Bus bus = (Bus) object;
+                executeInsert(generateInsertQuery("Transport"), object, "Transport");
+                executeInsert(generateInsertQuery("Bus"), object, "Bus");
+                bus.getBookedSeats().values().forEach(busTicket -> {
+                    executeInsert(generateInsertQuery("BusHashMap"), (T) busTicket, "BusHashMap");
+                });
+            case "Train":
+                Train train = (Train) object;
+                executeInsert(generateInsertQuery("Transport"), object, "Transport");
+                executeInsert(generateInsertQuery("Train"), object, "Train");
+                train.getBookedSeats().values().forEach(trainTicket -> {
+                    executeInsert(generateInsertQuery("TrainHashMap"), (T) trainTicket, "TrainHashMap");
+                });
+            case "BusTicket":
+                executeInsert(generateInsertQuery("Ticket"), object, "Ticket");
+                executeInsert(generateInsertQuery("BusTicket"), object, "BusTicket");
+            case "TrainTicket":
+                executeInsert(generateInsertQuery("Ticket"), object, "Ticket");
+                executeInsert(generateInsertQuery("TrainTicket"), object, "TrainTicket");
+            case "Location":
+                executeInsert(generateInsertQuery("Location"), object, "Location");
+            default:
+                throw new IllegalArgumentException("Unknown table: " + tableName);
+        }
+    }
+
+    private void executeInsert(String sql, T object, String tableName) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            setStatementParameters(stmt, object);
+            setStatementParameters(stmt, object, tableName);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseException("Fehler beim Erstellen des Eintrags in der Tabelle " + tableName + ": " + e.getMessage());
+            throw new DatabaseException("Error during insert into table " + tableName + ": " + e.getMessage());
+        }
+    }
+
+    private void executeInsert(String sql, T object, String tableName, String adminID) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (tableName.equals("AdminTransport") || tableName.equals("CostumerTicket")) {
+                 stmt.setString(1, adminID);
+                 stmt.setInt(2, (int) object.getId());
+            } else {
+                throw new SQLException("Unknown table: "+tableName);
+             }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error during insert into table " + tableName + ": " + e.getMessage());
         }
     }
 
@@ -114,20 +170,82 @@ public class DBRepository<T extends ID> implements IRepository<T> {
         return null;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public void update(T object) throws DatabaseException {
-        String sql = generateUpdateQuery();
+        switch (object.getClass().getName()) {
+            case "Administrator":
+                Administrator administrator = (Administrator) object;
+                executeUpdate(generateUpdateQuery("Admin"), object, "Admin");
+                executeDelete(object, "AdminTransport");
+                administrator.getAllAdministeredTransports().forEach(transport -> {
+                    executeInsert(generateInsertQuery("AdminTransport"), (T) transport, "AdminTransport", (String) administrator.getId());
+                });
+            case "Costumer":
+                Costumer costumer = (Costumer) object;
+                executeUpdate(generateUpdateQuery("Costumer"), object, "Costumer");
+                executeDelete(object, "CostumerTicket");
+                costumer.getAllTickets().forEach(ticket -> {
+                    executeInsert(generateInsertQuery("CostumerTicket"), (T) ticket, "CostumerTicket", (String) costumer.getId());
+                });
+            case "Bus":
+                Bus bus = (Bus) object;
+                executeUpdate(generateUpdateQuery("Bus"), object, "Bus");
+                executeDelete(object, "BusHashMap");
+                bus.getBookedSeats().values().forEach(busTicket -> {
+                    executeInsert(generateInsertQuery("BusHashMap"), (T) busTicket, "BusHashMap");
+                });
+            case "Train":
+                Train train = (Train) object;
+                executeUpdate(generateUpdateQuery("Train"), object, "Train");
+                executeDelete(object, "TrainHashMap");
+                train.getBookedSeats().values().forEach(trainTicket -> {
+                    executeInsert(generateInsertQuery("TrainHashMap"), (T) trainTicket, "TrainHashMap");
+                });
+            case "BusTicket":
+                executeUpdate(generateUpdateQuery("BusTicket"), object, "BusTicket");
+            case "TrainTicket":
+                executeUpdate(generateUpdateQuery("TrainTicket"), object, "TrainTicket");
+            case "Location":
+                executeUpdate(generateUpdateQuery("Location"), object, "Location");
+            default:
+                throw new DatabaseException("Unknown object class: " + object.getClass().getName());
+        }
+
+    }
+
+    private void executeUpdate(String sql, T object, String tableName) {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            setStatementParameters(stmt, object);
-            stmt.setObject(getParameterCount() + 1, object.getId());  // Assuming the ID is the last parameter
+            setStatementParameters(stmt, object, tableName);
+            stmt.setObject(getParameterCount() + 1, object.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseException("Fehler beim Aktualisieren des Eintrags in der Tabelle " + tableName);
+            throw new DatabaseException("Error during update of entry in table " + tableName+": "+e.getMessage());
+        }
+    }
+
+    /**
+     * Only used for AdminTransport, CostumerTicket and Bus/TrainHashMap
+     *
+     * @param object
+     * @param tableName
+     */
+    private void executeDelete(T object, String tableName) {
+        String sql = "";
+        if (object instanceof Person) {
+            sql = "DELETE FROM " + tableName + " WHERE email = ?";
+        } else if (object instanceof Transport) {
+            sql = "DELETE FROM " + tableName + " WHERE transport_id = ?";
+        } else throw new DatabaseException("Object of unexpected class: "+object.getClass().getName());
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, object.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Error during removal of entry with ID " + object.getId() + " from table " + tableName+": "+e.getMessage());
         }
     }
 
@@ -136,13 +254,23 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      */
     @Override
     public void delete(Object id) throws DatabaseException {
-        String sql = "DELETE FROM " + tableName + " WHERE id = ?";
+        //Due to "cascade on delete" in database the linked entries in other tables are also removed
+        String sql = "";
+        if (tableName.equals("Person")) {
+            sql = "DELETE FROM " + tableName + " WHERE email = ?";
+        } else if (tableName.equals("Transport")) {
+            sql = "DELETE FROM " + tableName + " WHERE transport_id = ?";
+        } else if (tableName.equals("Ticket")) {
+            sql = "DELETE FROM " + tableName + " WHERE ticket_id = ?";
+        } else if (tableName.equals("Location")) {
+            sql = "DELETE FROM " + tableName + " WHERE location_id = ?";
+        } else throw new DatabaseException("Unexpected table name for repository: "+this.tableName);
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseException("Fehler beim Löschen des Eintrags mit der ID " + id + " aus der Tabelle " + tableName);
+            throw new DatabaseException("Error during deletion of entry with ID " + id + " from table " + tableName);
         }
     }
 
@@ -210,22 +338,36 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      *
      * @return Die generierte SQL-Insert-Abfrage.
      */
-    private String generateInsertQuery() {
-        switch (tableName.toLowerCase()) {
-            case "admin":
-                return "INSERT INTO Admin (username, email, password) VALUES (?, ?, ?)";
-            case "customer":
-                return "INSERT INTO Customer (username, email, password, balance) VALUES (?, ?, ?, ?)";
-            case "location":
-                return "INSERT INTO Location (street, city) VALUES (?, ?)";
-            case "bus":
-                return "INSERT INTO Bus (origin_id, destination_id, date, departure_time, arrival_time, capacity) VALUES (?, ?, ?, ?, ?, ?)";
-            case "train":
-                return "INSERT INTO Train (origin_id, destination_id, date, departure_time, arrival_time, first_class_capacity, second_class_capacity) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            case "busticket":
-                return "INSERT INTO BusTicket (customer_id, bus_id, price, seat_number) VALUES (?, ?, ?, ?)";
-            case "trainticket":
-                return "INSERT INTO TrainTicket (customer_id, train_id, price, seat_number, class) VALUES (?, ?, ?, ?, ?)";
+    private String generateInsertQuery(String tablename) {
+        switch (tablename) {
+            case "Person":
+                return "INSERT INTO Person (email, person_table) VALUES (?, ?)";
+            case "Admin":
+                return "INSERT INTO Admin (email,username, password) VALUES (?, ?, ?)";
+            case "AdminTransport":
+                return "INSERT INTO AdminTransport (email, transport_id) VALUES (?, ?)";
+            case "Costumer":
+                return "INSERT INTO Customer (email,username, password, balance) VALUES (?, ?, ?, ?)";
+            case "CostumerTicket":
+                return "INSERT INTO CostumerTicket (email, ticket_id) VALUES (?, ?)";
+            case "Transport":
+                return "INSERT INTO Transport (transport_id, transport_table) VALUES (?, ?)";
+            case "Bus":
+                return "INSERT INTO Bus (transport_id, origin_id, destination_id, date, departure_time, arrival_time, capacity) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            case "BusHashMap":
+                return "INSERT INTO BusHashMap (transport_id, seat_number, ticket_id) VALUES (?, ?, ?)";
+            case "Train":
+                return "INSERT INTO Train (transport_id, origin_id, destination_id, date, departure_time, arrival_time, first_class_capacity, second_class_capacity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            case "TrainHashMap":
+                return "INSERT INTO TrainHashMap (transport_id, seat_number, ticket_id) VALUES (?, ?, ?)";
+            case "Ticket":
+                return "INSERT INTO Ticket (ticket_id, ticket_table) VALUES (?, ?)";
+            case "BusTicket":
+                return "INSERT INTO BusTicket (ticket_id, email, transport_id, price, seat_number) VALUES (?, ?, ?, ?, ?)";
+            case "TrainTicket":
+                return "INSERT INTO TrainTicket (ticket_id, email, transport_id, price, seat_number, class) VALUES (?, ?, ?, ?, ?, ?)";
+            case "Location":
+                return "INSERT INTO Location (location_id, street, city) VALUES (?, ?, ?)";
             default:
                 throw new IllegalArgumentException("Unknown table: " + tableName);
         }
@@ -236,24 +378,24 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      *
      * @return Die generierte SQL-Update-Abfrage.
      */
-    private String generateUpdateQuery() {
-        switch (tableName.toLowerCase()) {
-            case "admin":
-                return "UPDATE Admin SET username = ?, email = ?, password = ? WHERE admin_id = ?";
-            case "customer":
-                return "UPDATE Customer SET username = ?, email = ?, password = ?, balance = ? WHERE customer_id = ?";
-            case "location":
-                return "UPDATE Location SET street = ?, city = ? WHERE location_id = ?";
-            case "bus":
-                return "UPDATE Bus SET origin_id = ?, destination_id = ?, date = ?, departure_time = ?, arrival_time = ?, capacity = ? WHERE bus_id = ?";
-            case "train":
-                return "UPDATE Train SET origin_id = ?, destination_id = ?, date = ?, departure_time = ?, arrival_time = ?, first_class_capacity = ?, second_class_capacity = ? WHERE train_id = ?";
-            case "busticket":
-                return "UPDATE BusTicket SET customer_id = ?, bus_id = ?, price = ?, seat_number = ? WHERE ticket_id = ?";
-            case "trainticket":
-                return "UPDATE TrainTicket SET customer_id = ?, train_id = ?, price = ?, seat_number = ?, class = ? WHERE ticket_id = ?";
+    private String generateUpdateQuery(String tableName) {
+        switch (tableName) {
+            case "Admin":
+                return "UPDATE Admin SET email = ?, username = ?, password = ? WHERE email = ?";
+            case "Costumer":
+                return "UPDATE Customer SET email = ?,username = ?, password = ?, balance = ? WHERE email = ?";
+            case "Bus":
+                return "UPDATE Bus SET transport_id = ?, origin_id = ?, destination_id = ?, date = ?, departure_time = ?, arrival_time = ?, capacity = ? WHERE transport_id = ?";
+            case "Train":
+                return "UPDATE Train SET transport_id = ?, origin_id = ?, destination_id = ?, date = ?, departure_time = ?, arrival_time = ?, first_class_capacity = ?, second_class_capacity = ? WHERE transport_id = ?";
+            case "BusTicket":
+                return "UPDATE BusTicket SET ticket_id = ?, email = ?, transport_id = ?, price = ?, seat_number = ? WHERE ticket_id = ?";
+            case "TrainTicket":
+                return "UPDATE TrainTicket SET ticket_id = ?, email = ?, transport_id = ?, price = ?, seat_number = ?, class = ? WHERE ticket_id = ?";
+            case "Location":
+                return "UPDATE Location SET location_id = ?, street = ?, city = ? WHERE location_id = ?";
             default:
-                throw new IllegalArgumentException("Unbekannte Tabelle: " + tableName);
+                throw new IllegalArgumentException("Unknown table: " + tableName);
         }
     }
 
@@ -265,60 +407,98 @@ public class DBRepository<T extends ID> implements IRepository<T> {
      * @param object Das Objekt, dessen Felder in die Parameter eingesetzt werden sollen.
      * @throws SQLException Wenn ein Fehler auftritt.
      */
-    private void setStatementParameters(PreparedStatement stmt, T object) throws SQLException {
-        if (object instanceof Administrator) {
-            Administrator admin = (Administrator) object;
-            stmt.setString(1, admin.getUsername());
-            stmt.setString(2, (String) admin.getId());
-            stmt.setString(3, admin.getPassword());
-            stmt.setBoolean(4, true);
-        } else if (object instanceof Costumer) {
-            Costumer customer = (Costumer) object;
-            stmt.setString(1, customer.getUsername());
-            stmt.setString(2, (String) customer.getId());
-            stmt.setString(3, customer.getPassword());
-            stmt.setBoolean(4, false);
-        }else if (object instanceof Location) {
-            Location location = (Location) object;
-            stmt.setString(1, location.getStreet());
-            stmt.setString(2, location.getCity());
-        } else if (object instanceof Bus) {
-            Bus bus = (Bus) object;
-            stmt.setInt(1, (int) bus.getId());
-            stmt.setInt(2, (int) bus.getOrigin().getId());
-            stmt.setInt(3, (int) bus.getDestination().getId());
-            stmt.setDate(4, java.sql.Date.valueOf(bus.getDate()));
-            stmt.setTime(5, java.sql.Time.valueOf(bus.getDepartureTime()));
-            stmt.setTime(6, java.sql.Time.valueOf(bus.getArrivalTime()));
-            stmt.setInt(7, bus.getCapacity());
-        } else if (object instanceof Train) {
-            Train train = (Train) object;
-            stmt.setInt(1, (int) train.getId());
-            stmt.setInt(2, (int) train.getOrigin().getId());
-            stmt.setInt(3, (int) train.getDestination().getId());
-            stmt.setDate(4, java.sql.Date.valueOf(train.getDate()));
-            stmt.setTime(5, java.sql.Time.valueOf(train.getDepartureTime()));
-            stmt.setTime(6, java.sql.Time.valueOf(train.getArrivalTime()));
-            stmt.setInt(7, train.getFirstCapacity());
-            stmt.setInt(8, train.getSecondCapacity());
-        } else if (object instanceof BusTicket) {
-            BusTicket ticket = (BusTicket) object;
-            stmt.setInt(1, (int) ticket.getId());   // ticket.customer_id
-            stmt.setInt(2, (int) ticket.getId());        // ticket.bus_id
-            stmt.setInt(3, ticket.getPrice()); // ticket.price (DECIMAL)
-            stmt.setInt(4, ticket.getSeat());   // ticket.seat_number (INT)
-        } else if (object instanceof TrainTicket) {
-            TrainTicket ticket = (TrainTicket) object;
-            stmt.setInt(1, (int) ticket.getId());     // ticket.customer_id
-            stmt.setInt(2, (int) ticket.getId());        // ticket.train_id
-            stmt.setInt(3, ticket.getPrice());   // ticket.price (DECIMAL)
-            stmt.setInt(4, ticket.getSeat());
-            if(ticket.getTicketClass()==1)
-                stmt.setInt(5, 1);
-            else
-                stmt.setInt(5, 2);
-        } else {
-            throw new SQLException("Unbekanntes Objekt für das Statement: " + object.getClass().getName());
+    private void setStatementParameters(PreparedStatement stmt, T object, String tablename) throws SQLException {
+        switch (tablename) {
+            case "Person":
+                Person person = (Person) object;
+                stmt.setString(1, (String) person.getId());
+                if (person instanceof Administrator) {
+                    stmt.setString(2, "Admin");
+                } else if (person instanceof Costumer) {
+                    stmt.setString(2, "Costumer");
+                }
+            case "Admin":
+                Administrator admin = (Administrator) object;
+                stmt.setString(1, (String) admin.getId());
+                stmt.setString(2, admin.getUsername());
+                stmt.setString(3, admin.getPassword());
+            case "Costumer":
+                Costumer costumer = (Costumer) object;
+                stmt.setString(1, (String) costumer.getId());
+                stmt.setString(2, costumer.getUsername());
+                stmt.setString(3, costumer.getPassword());
+                stmt.setInt(4, costumer.getBalance());
+            case "Transport":
+                Transport transport = (Transport) object;
+                stmt.setInt(1, (int) transport.getId());
+                if (transport instanceof Bus) {
+                    stmt.setString(2, "Bus");
+                } else if (transport instanceof Train) {
+                    stmt.setString(2, "Train");
+                }
+            case "Bus":
+                Bus bus = (Bus) object;
+                stmt.setInt(1, (int) bus.getId());
+                stmt.setInt(2, (int) bus.getOrigin().getId());
+                stmt.setInt(3, (int) bus.getDestination().getId());
+                stmt.setDate(4, java.sql.Date.valueOf(bus.getDate()));
+                stmt.setTime(5, java.sql.Time.valueOf(bus.getDepartureTime()));
+                stmt.setTime(6, java.sql.Time.valueOf(bus.getArrivalTime()));
+                stmt.setInt(7, bus.getCapacity());
+            case "BusHashMap":
+                BusTicket ticket1 = (BusTicket) object;
+                stmt.setInt(1, (int) ticket1.getTransport().getId());
+                stmt.setInt(2, ticket1.getSeat());
+                stmt.setInt(3, (int) ticket1.getId());
+            case "Train":
+                Train train = (Train) object;
+                stmt.setInt(1, (int) train.getId());
+                stmt.setInt(2, (int) train.getOrigin().getId());
+                stmt.setInt(3, (int) train.getDestination().getId());
+                stmt.setDate(4, java.sql.Date.valueOf(train.getDate()));
+                stmt.setTime(5, java.sql.Time.valueOf(train.getDepartureTime()));
+                stmt.setTime(6, java.sql.Time.valueOf(train.getArrivalTime()));
+                stmt.setInt(7, train.getFirstCapacity());
+                stmt.setInt(8, train.getSecondCapacity());
+            case "TrainHashMap":
+                TrainTicket ticket2 = (TrainTicket) object;
+                stmt.setInt(1, (int) ticket2.getTransport().getId());
+                stmt.setInt(2, ticket2.getSeat());
+                stmt.setInt(3, (int) ticket2.getId());
+            case "Ticket":
+                Ticket ticket = (Ticket) object;
+                stmt.setInt(1, (int) ticket.getId());
+                if (ticket instanceof BusTicket) {
+                    stmt.setString(2, "BusTicket");
+                } else if (ticket instanceof TrainTicket) {
+                    stmt.setString(2, "TrainTicket");
+                }
+            case "BusTicket":
+                BusTicket busTicket = (BusTicket) object;
+                stmt.setInt(1, (int) busTicket.getId());
+                stmt.setString(2, (String) busTicket.getCostumer().getId());
+                stmt.setInt(3,(int) busTicket.getTransport().getId());
+                stmt.setInt(4,busTicket.getPrice());
+                stmt.setInt(5,busTicket.getSeat());
+            case "TrainTicket":
+                TrainTicket trainTicket = (TrainTicket) object;
+                stmt.setInt(1, (int) trainTicket.getId());
+                stmt.setString(2, (String) trainTicket.getCostumer().getId());
+                stmt.setInt(3,(int) trainTicket.getTransport().getId());
+                stmt.setInt(4,trainTicket.getPrice());
+                stmt.setInt(5,trainTicket.getSeat());
+                if (trainTicket.getTicketClass() == 1) {
+                    stmt.setString(6, "1");
+                } else if (trainTicket.getTicketClass() == 2) {
+                    stmt.setString(6, "2");
+                }
+            case "Location":
+                Location location = (Location) object;
+                stmt.setInt(1, (int) location.getId());
+                stmt.setString(2, location.getStreet());
+                stmt.setString(3, location.getCity());
+            default:
+                throw new DatabaseException("Unknown table encountered when setting statement parameters: " + tableName);
         }
     }
 
