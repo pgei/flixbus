@@ -7,23 +7,23 @@ package main.java.model;
 public abstract class Ticket implements ID {
 
     private int ticketId;
-    private Costumer costumer;
-    private Transport transport;
+    private String costumerID;
+    private int transportID;
     private int price;
     private int seat;
 
     /**
      * Konstruktor für die Erstellung eines Tickets, wobei im System eine einzigartige Id vergeben wird.
      *
-     * @param costumer      Kunde der das Ticket erworben hat
-     * @param transport     Transport auf dem das Ticket gültig ist
+     * @param costumer      ID des Kunden der das Ticket erworben hat
+     * @param transport     ID des Transports auf dem das Ticket gültig ist
      * @param price         Preis des Tickets
      * @param seat          Sitzplatz welcher unter dem Ticket reserviert ist
      */
-    public Ticket(int id, Costumer costumer, Transport transport, int price, int seat) {
+    public Ticket(int id, String costumer, int transport, int price, int seat) {
         this.ticketId = id;
-        this.costumer = costumer;
-        this.transport = transport;
+        this.costumerID = costumer;
+        this.transportID = transport;
         this.price = price;
         this.seat = seat;
     }
@@ -37,16 +37,16 @@ public abstract class Ticket implements ID {
     /**
      * Getter für Kunde der das Ticket reserviert hat
      *
-     * @return  Kunde der das Ticket besitzt
+     * @return ID des Kunden der das Ticket besitzt
      */
-    public Costumer getCostumer() {return this.costumer;}
+    public String getCostumer() {return this.costumerID;}
 
     /**
      * Getter für Transport auf dem das Ticket gültig ist
      *
-     * @return  Transport für welchen das Ticket gültig ist
+     * @return  ID des Transports für welchen das Ticket gültig ist
      */
-    public Transport getTransport() {return this.transport;}
+    public int getTransport() {return this.transportID;}
 
     /**
      * Getter für Preis, der beim Kauf des Tickets gezahlt wurde
@@ -82,8 +82,6 @@ public abstract class Ticket implements ID {
                 "\n TicketNr: " + this.ticketId +
                 "\n Price: " + this.price +
                 "\n Seat: " + this.seat +
-                "\n+++++++++++++++++++++++++++++++++++++++++\n" +
-                this.getTransport().toString() +
                 "\n+++++++++++++++++++++++++++++++++++++++++\n";
     }
 
@@ -98,7 +96,7 @@ public abstract class Ticket implements ID {
                 "\n TicketNr: " + this.ticketId +
                 "\n Price: " + this.price +
                 "\n Seat: " + this.seat +
-                "\n Name: " + this.costumer.getUsername() +
+                "\n Costumer: " + this.costumerID +
                 "\n+++++++++++++++++++++++++++++++++++++++++\n";
     }
 
