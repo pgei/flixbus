@@ -21,8 +21,8 @@ public class FileDataInitializer {
         Costumer customer3 = new Costumer("Bob", "bob@gmail.com", "Securepass123");
         Location location1= new Location(0,"Aurel Vlaicu","Cluj-Napoca");
         Location location2= new Location(1,"Mihai Viteazul","Sibiu");
-        Transport transport1= new Bus(0, location1,location2,2023,12,13,14,0,17,0,20);
-        Transport transport2= new Train(1,location1,location2,2023,12,13,10,0,15,0,20,50);
+        Transport transport1= new Bus(0, 0,1,2023,12,13,14,0,17,0,20);
+        Transport transport2= new Train(1,0,1,2023,12,13,10,0,15,0,20,50);
         admin1.getAllAdministeredTransports().add(transport1);
         admin1.getAllAdministeredTransports().add(transport2);
 

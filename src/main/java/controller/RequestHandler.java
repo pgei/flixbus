@@ -49,6 +49,7 @@ public class RequestHandler {
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Registration was not possible due to error in database operations!");
         }
@@ -73,6 +74,7 @@ public class RequestHandler {
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Registration was not possible due to error in database operations!");
         }
@@ -93,6 +95,7 @@ public class RequestHandler {
         } catch (EntityNotFoundException | BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Login was not possible due to error in database operations!");
         }
@@ -108,6 +111,7 @@ public class RequestHandler {
             bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
             System.out.println(out);
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Fetching transports was not possible due to error in database operations!");
         }
@@ -160,6 +164,7 @@ public class RequestHandler {
         } catch (EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Filtering transports was not possible due to error in database operations!");
         }
@@ -180,6 +185,7 @@ public class RequestHandler {
                 bookingSystem.getTransportsFilteredByMaxPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
                 System.out.println(out);
             } catch (DatabaseException e) {
+                System.err.println(e.getMessage());
                 //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
                 System.out.println("DatabaseException: Filtering transports was not possible due to error in database operations!");
             }
@@ -197,6 +203,7 @@ public class RequestHandler {
             bookingSystem.getTransportsSortedByDateAscending().forEach(transport -> out.append(transport.toString()).append("\n"));
             System.out.println(out);
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Sorting transports was not possible due to error in database operations!");
         }
@@ -212,6 +219,7 @@ public class RequestHandler {
             bookingSystem.getTransportsSortedByDurationAscending().forEach(transport -> out.append(transport.toString()).append("\n"));
             System.out.println(out);
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Sorting transports was not possible due to error in database operations!");
         }
@@ -226,6 +234,7 @@ public class RequestHandler {
             bookingSystem.getLocations().forEach(location -> out.append(location.toString()).append("\n"));
             System.out.println(out);
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Fetching destinations was not possible due to error in database operations!");
         }
@@ -243,6 +252,7 @@ public class RequestHandler {
         } catch (EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Fetching balance was not possible due to error in database operations!");
         }
@@ -265,6 +275,7 @@ public class RequestHandler {
             } catch (EntityNotFoundException e) {
                 System.out.println(e.getMessage());
             } catch (DatabaseException e) {
+                System.err.println(e.getMessage());
                 //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
                 System.out.println("DatabaseException: Fetching balance was not possible due to error in database operations!");
             }
@@ -280,10 +291,19 @@ public class RequestHandler {
         try {
             List<Ticket> list = bookingSystem.getALlTickets(costumer);
             System.out.println("Here is a list of all tickets you have reserved at this moment:\n\n");
-            list.forEach(ticket -> System.out.println(ticket.toString()));
+            list.forEach(ticket -> {
+                System.out.println(ticket.toString());
+                bookingSystem.getAllTransports().forEach(transport -> {
+                    if ((int) transport.getId() == ticket.getTransport()) {
+                        System.out.print(transport.toString());
+                    }
+                });
+                System.out.println("\n+++++++++++++++++++++++++++++++++++++++++\n");
+            });
         } catch (EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Fetching tickets from repository was not possible due to error in database operations!");
         }
@@ -306,6 +326,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Buying ticket was not possible due to error in database operations!");
         }
@@ -324,6 +345,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Cancelling ticket was not possible due to error in database operations!");
         }
@@ -343,6 +365,7 @@ public class RequestHandler {
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Creating location was not possible due to error in database operations!");
         }
@@ -378,6 +401,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Creating bus transport was not possible due to error in database operations!");
         }
@@ -415,6 +439,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Creating train transport was not possible due to error in database operations!");
         }
@@ -433,6 +458,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Cancelling transport was not possible due to error in database operations!");
         }
@@ -456,6 +482,7 @@ public class RequestHandler {
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Fetching tickets was not possible due to error in database operations!");
         }
@@ -470,6 +497,7 @@ public class RequestHandler {
             bookingSystem.getLocationsSortedDescendingByTotalTickets().forEach(location -> out.append(location.toString()).append("\n"));
             System.out.println(out);
         } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
             System.out.println("DatabaseException: Calculating the statistics was not possible due to error in database operations!");
         }

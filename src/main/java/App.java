@@ -515,17 +515,14 @@ public class App {
             App application = new App(requestHandler);
             application.start();
         } else if (repositorySource == 2) {
-            //TO-DO
-            /*
-            IRepository<Person> personRepository = new DBRepository<>("Person", new PersonMapper());
-            IRepository<Location> locationRepository = new DBRepository<>("Location", new LocationMapper());
-            IRepository<Transport> transportRepository = new DBRepository<>("Transport", new TransportMapper());
-            IRepository<Ticket> ticketRepository = new DBRepository<>("Ticket", new TicketMapper());
-
+            IRepository<Person> personRepository = new DBRepository<>("Person");
+            IRepository<Location> locationRepository = new DBRepository<>("Location");
+            IRepository<Transport> transportRepository = new DBRepository<>("Transport");
+            IRepository<Ticket> ticketRepository = new DBRepository<>("Ticket");
             BookingSystem bookingSystem = new BookingSystem(personRepository, transportRepository, ticketRepository, locationRepository);
             RequestHandler requestHandler = new RequestHandler(bookingSystem);
             App application = new App(requestHandler);
-            application.start();*/
+            application.start();
         }
     }
 

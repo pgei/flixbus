@@ -10,8 +10,8 @@ import java.time.LocalTime;
 public abstract class Transport implements ID {
 
     private int transportId;
-    private Location origin;
-    private Location destination;
+    private int originID;
+    private int destinationId;
     private LocalDate date;
     private LocalTime std; //Scheduled time of departure
     private LocalTime sta; //Scheduled time of arrival
@@ -19,8 +19,8 @@ public abstract class Transport implements ID {
     /**
      * Konstruktor für die Erstellung eines Transports, wobei im System eine einzigartige Id vergeben wird.
      *
-     * @param origin        Ort an dem der Transport startet
-     * @param destination   Ort an dem der Transport endet
+     * @param origin        ID des Ortes an dem der Transport startet
+     * @param destination   ID des Ortes an dem der Transport endet
      * @param year          Jahr in dem der Transport stattfindet
      * @param month         Monat in dem der Transport stattfindet
      * @param day           Datum des Tages an dem der Transport stattfindet
@@ -29,10 +29,10 @@ public abstract class Transport implements ID {
      * @param houra         Stunde, zu der der Transport endet
      * @param mina          Minute, zu der der Transport endet
      */
-    public Transport(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina) {
+    public Transport(int id, int origin, int destination, int year, int month, int day, int hourd, int mind, int houra, int mina) {
         this.transportId = id;
-        this.origin = origin;
-        this.destination = destination;
+        this.originID = origin;
+        this.destinationId = destination;
         this.date = LocalDate.of(year, month, day);
         this.std = LocalTime.of(hourd, mind);
         this.sta = LocalTime.of(houra, mina);
@@ -47,16 +47,16 @@ public abstract class Transport implements ID {
     /**
      * Getter für Ort an dem der Transport startet
      *
-     * @return  Ort an dem der Transport startet
+     * @return  ID des Ortes an dem der Transport startet
      */
-    public Location getOrigin() {return this.origin;}
+    public int getOrigin() {return this.originID;}
 
     /**
      * Getter für Ort an dem der Transport endet
      *
-     * @return  Ort an dem der Transport endet
+     * @return  ID des Ortes an dem der Transport endet
      */
-    public Location getDestination() {return this.destination;}
+    public int getDestination() {return this.destinationId;}
 
     /**
      * Getter für Datum an dem der Transport stattfindet
@@ -96,7 +96,7 @@ public abstract class Transport implements ID {
         String type = "";
         if (this instanceof Bus) {type = "Bus";} else if (this instanceof Train) {type = "Train";}
         return type +" { \n Transport-ID = " + this.transportId+
-                "\n From " + this.origin.getStreet() +", " + this.origin.getCity() + " --> To " + this.destination.getStreet() +", " + this.destination.getCity() +
+                "\n From location with ID "+this.originID+" --> To location with ID " + this.destinationId +
                 "\n Date: " + this.date.toString() +
                 "\n Departure: " + this.std.toString() +", Arrival: " + this.sta.toString() + " }";
     }

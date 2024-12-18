@@ -147,7 +147,7 @@ public class BookingSystem {
             //Fall filtern auf Ankunftsort und Kapazität
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getDestination().getId() == destination && transport.getCapacity() > 0) {
+                if (transport.getDestination() == destination && transport.getCapacity() > 0) {
                     filtered.add(transport);
                 }
             });
@@ -156,7 +156,7 @@ public class BookingSystem {
             //Fall filtern auf Abfahrtsort und Kapazität
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getOrigin().getId() == origin && transport.getCapacity() > 0) {
+                if (transport.getOrigin() == origin && transport.getCapacity() > 0) {
                     filtered.add(transport);
                 }
             });
@@ -165,7 +165,7 @@ public class BookingSystem {
             //Fall filtern auf Abfahrtsort und Ankunftsort sowie Kapazität
             List<Transport> filtered = new ArrayList<>();
             this.transportRepository.getAll().forEach(transport -> {
-                if ((int) transport.getOrigin().getId() == origin && (int) transport.getDestination().getId() == destination && transport.getCapacity() > 0) {
+                if ( transport.getOrigin() == origin && transport.getDestination() == destination && transport.getCapacity() > 0) {
                     filtered.add(transport);
                 }
             });
@@ -329,14 +329,14 @@ public class BookingSystem {
             }
             int seat = bus.getCapacity();
             //Ticket erstellen und in Repository hinterlegen
-            BusTicket ticket = new BusTicket(this.ticketIdCount, costumer, bus, PRICE_BUS, seat);
+            BusTicket ticket = new BusTicket(this.ticketIdCount, (String) costumer.getId(), (int) bus.getId(), PRICE_BUS, seat);
             this.ticketRepository.create(ticket);
             //Aktualisierung von Transport und Kunde
             bus.setCapacity(bus.getCapacity() - 1);
             bus.getBookedSeats().put(seat, ticket);
             costumer.getAllTickets().add(ticket);
-            reduceBalance(costumer, PRICE_BUS);
             this.personRepository.update(costumer);
+            reduceBalance(costumer, PRICE_BUS);
             this.transportRepository.update(bus);
         } else if (bus.getCapacity() == 0) {
             throw new BusinessLogicException("BusinessLogicException: The bus transport is sold out and does not have any capacity left!");
@@ -364,14 +364,14 @@ public class BookingSystem {
             }
             int seat = Integer.parseInt("1" + train.getFirstCapacity());
             //Ticket erstellen und in Repository hinterlegen
-            TrainTicket ticket = new TrainTicket(this.ticketIdCount, costumer, train, PRICE_1ST_TRAIN, seat, 1);
+            TrainTicket ticket = new TrainTicket(this.ticketIdCount, (String) costumer.getId(), (int) train.getId(), PRICE_1ST_TRAIN, seat, 1);
             this.ticketRepository.create(ticket);
             //Aktualisierung von Transport und Kunde
             train.setFirstCapacity(train.getFirstCapacity() - 1);
             train.getBookedSeats().put(seat, ticket);
             costumer.getAllTickets().add(ticket);
-            reduceBalance(costumer, PRICE_1ST_TRAIN);
             this.personRepository.update(costumer);
+            reduceBalance(costumer, PRICE_1ST_TRAIN);
             this.transportRepository.update(train);
         } else if (train.getCapacity() == 0) {
             throw new BusinessLogicException("BusinessLogicException: The train transport is sold out and does not have any capacity left!");
@@ -400,14 +400,14 @@ public class BookingSystem {
             }
             int seat = Integer.parseInt("2" + train.getSecondCapacity());
             //Ticket erstellen und in Repository hinterlegen
-            TrainTicket ticket = new TrainTicket(this.ticketIdCount, costumer, train, PRICE_2ND_TRAIN, seat, 2);
+            TrainTicket ticket = new TrainTicket(this.ticketIdCount, (String) costumer.getId(), (int) train.getId(), PRICE_2ND_TRAIN, seat, 2);
             this.ticketRepository.create(ticket);
             //Aktualisierung von Transport und Kunde
             train.setSecondCapacity(train.getSecondCapacity() - 1);
             train.getBookedSeats().put(seat, ticket);
             costumer.getAllTickets().add(ticket);
-            reduceBalance(costumer, PRICE_2ND_TRAIN);
             this.personRepository.update(costumer);
+            reduceBalance(costumer, PRICE_2ND_TRAIN);
             this.transportRepository.update(train);
         } else if (train.getCapacity() == 0) {
             throw new BusinessLogicException("BusinessLogicException: The train transport is sold out and does not have any capacity left!");
@@ -436,21 +436,21 @@ public class BookingSystem {
         Ticket ticket = this.ticketRepository.get(id);
         if (ticket == null) throw new EntityNotFoundException("EntityNotFoundException: No ticket with this TicketNr exists in the repository!");
         //Kontrolle, ob Ticket wirklich dem Kunden gehört
-        if (!ticket.getCostumer().getId().equals(costumer.getId())) {
+        if (!ticket.getCostumer().equals(costumer.getId())) {
             throw new BusinessLogicException("BusinessLogicException: You do not own a ticket with this TicketNr!");
         }
         //Transport aktualisieren
-        if (ticket.getTransport() instanceof Bus) {
+        if (ticket instanceof BusTicket) {
             removeTicketFromBusTransport(id);
-        } else if (ticket.getTransport() instanceof Train) {
+        } else if (ticket instanceof TrainTicket) {
             removeTicketFromTrainTransport(id);
         } else throw new RuntimeException("RunTimeException: Ticket has unknown class of transport!");
         //Kunde aktualisieren
         Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
         upToDateCostumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(id));
         //Servicegebühr in Höhe von 10% des Ticketpreises wird einbehalten
-        addBalance(upToDateCostumer, (int) (ticket.getPrice() * 0.9));
         this.personRepository.update(upToDateCostumer);
+        addBalance(upToDateCostumer, (int) (ticket.getPrice() * 0.9));
         this.ticketRepository.delete(id);
     }
 
@@ -463,7 +463,7 @@ public class BookingSystem {
      */
     private void removeTicketFromBusTransport(int id) throws DatabaseException {
         Ticket ticket = this.ticketRepository.get(id);
-        Bus transport = (Bus) this.transportRepository.get(ticket.getTransport().getId());
+        Bus transport = (Bus) this.transportRepository.get(ticket.getTransport());
         HashMap<Integer, BusTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
@@ -475,7 +475,7 @@ public class BookingSystem {
             changeticket.setSeat(ticket.getSeat());
             mapTickets.put(ticket.getSeat(), changeticket);
             this.ticketRepository.update(changeticket);
-            Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+            Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer());
             costumer.getAllTickets().forEach(ticket1 -> {
                 if (ticket1.getId().equals(changeticket.getId())) {
                     ticket1.setSeat(ticket.getSeat());
@@ -495,7 +495,7 @@ public class BookingSystem {
      */
     private void removeTicketFromTrainTransport(int id) throws DatabaseException {
         Ticket ticket = this.ticketRepository.get(id);
-        Train transport = (Train) this.transportRepository.get(ticket.getTransport().getId());
+        Train transport = (Train) this.transportRepository.get(ticket.getTransport());
         HashMap<Integer, TrainTicket> mapTickets = transport.getBookedSeats();
         //Ticket entfernen
         mapTickets.remove(ticket.getSeat());
@@ -508,7 +508,7 @@ public class BookingSystem {
                 changeticket.setSeat(ticket.getSeat());
                 mapTickets.put(ticket.getSeat(), changeticket);
                 this.ticketRepository.update(changeticket);
-                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer());
                 costumer.getAllTickets().forEach(ticket1 -> {
                     if (ticket1.getId().equals(changeticket.getId())) {
                         ticket1.setSeat(ticket.getSeat());
@@ -526,7 +526,7 @@ public class BookingSystem {
                 changeticket.setSeat(ticket.getSeat());
                 mapTickets.put(ticket.getSeat(), changeticket);
                 this.ticketRepository.update(changeticket);
-                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer().getId());
+                Costumer costumer = (Costumer) this.personRepository.get(changeticket.getCostumer());
                 costumer.getAllTickets().forEach(ticket1 -> {
                     if (ticket1.getId().equals(changeticket.getId())) {
                         ticket1.setSeat(ticket.getSeat());
@@ -596,7 +596,7 @@ public class BookingSystem {
                     this.transportIdCount++;
                 }
                 //Transport erstellen und in Repository hinterlegen
-                Bus transport = new Bus(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, capacity);
+                Bus transport = new Bus(this.transportIdCount, (int) origin.getId(), (int) destination.getId(), year, month, day, hourd, mind, houra, mina, capacity);
                 this.transportRepository.create(transport);
                 Administrator upToDateAdmin = (Administrator) this.personRepository.get(admin.getId());
                 upToDateAdmin.getAllAdministeredTransports().add(transport);
@@ -639,7 +639,7 @@ public class BookingSystem {
                     this.transportIdCount++;
                 }
                 //Transport erstellen und in Repository hinterlegen
-                Train transport = new Train(this.transportIdCount, origin, destination, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
+                Train transport = new Train(this.transportIdCount, (int) origin.getId(), (int) destination.getId(), year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
                 this.transportRepository.create(transport);
                 Administrator upToDateAdmin = (Administrator) this.personRepository.get(admin.getId());
                 upToDateAdmin.getAllAdministeredTransports().add(transport);
@@ -675,11 +675,11 @@ public class BookingSystem {
                 upToDateAdmin.getAllAdministeredTransports().removeIf(transport1 -> transport1.getId().equals(transport.getId()));
                 this.personRepository.update(upToDateAdmin);
                 for (Ticket ticket : getAllTransportTickets(admin, id)) {
-                    Costumer costumer = (Costumer) this.personRepository.get(ticket.getCostumer().getId());
+                    Costumer costumer = (Costumer) this.personRepository.get(ticket.getCostumer());
                     costumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(ticket.getId()));
                     //Rückerstattung des vollen Ticketpreises
-                    addBalance(costumer, ticket.getPrice());
                     this.personRepository.update(costumer);
+                    addBalance(costumer, ticket.getPrice());
                     this.ticketRepository.delete(ticket.getId());
                 }
                 this.transportRepository.delete(id);
@@ -766,11 +766,11 @@ public class BookingSystem {
         // Zählt die Tickets für alle Transporte, die an einem Ort starten oder enden
         for (Transport transport : transportRepository.getAll()) {
             int ticketCount = (int) ticketRepository.getAll().stream()
-                    .filter(ticket -> ticket.getTransport().getId() == transport.getId())
+                    .filter(ticket -> ticket.getTransport() == (int) transport.getId())
                     .count();
             //Fügt die Summe der für diesen Transport gezählte Tickets zur Summe der für Abfahrts- und Ankunftsort bereits gezählten Tickets
-            locationTicketCountMap.merge((int) transport.getOrigin().getId(), ticketCount, Integer::sum);
-            locationTicketCountMap.merge((int) transport.getDestination().getId(), ticketCount, Integer::sum);
+            locationTicketCountMap.merge((int) transport.getOrigin(), ticketCount, Integer::sum);
+            locationTicketCountMap.merge((int) transport.getDestination(), ticketCount, Integer::sum);
         }
 
         // Sortiert die Location-IDs nach der Gesamtanzahl der Tickets und wandelt Liste dann in Orts-Liste um

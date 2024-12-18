@@ -7,26 +7,24 @@ import main.java.model.Costumer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Klasse zum Zuordnen von ResultSet-Daten zu einer BusTicket-Entität.
+ */
 public class BusTicketMapper implements EntityMapper<BusTicket> {
+
+    /**
+     * Methode die ResultSet in BusTicket-Objekt überträgt
+     *
+     * @param rs            ResultSet das umgewandelt werden soll
+     * @return              BusTicket-Objekt
+     * @throws SQLException Wenn ein Fehler auftritt
+     */
     @Override
     public BusTicket map(ResultSet rs) throws SQLException {
-        Costumer costumer = new Costumer(
-                rs.getString("customer_id"),
-                rs.getString("customer_name"),
-                rs.getString("customer_email")
-        );
-
-        Bus bus = new Bus(
-                rs.getInt("bus_id"),
-                // Include required arguments for Bus here, e.g., origin, destination, etc.
-                // Assuming you'll fetch these fields or have relevant joins in the SQL query
-                null, null, 0, 0, 0, 0, 0, 0, 0, 0
-        );
-
         return new BusTicket(
                 rs.getInt("ticket_id"),
-                costumer,
-                bus,
+                rs.getString("email"),
+                rs.getInt("transport_id"),
                 rs.getInt("price"),
                 rs.getInt("seat_number")
         );

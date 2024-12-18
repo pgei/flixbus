@@ -14,8 +14,8 @@ public class Bus extends Transport {
     /**
      * Konstuktor für Erstellung eines Bustransports, welcher den Konstuktor der erweiterten Klasse Transport überlädt sowie zusätzlich die anfängliche Kapazität des Buses definiert.
      *
-     * @param origin        Ort an dem der Bustransport startet
-     * @param destination   Ort an dem der Bustransport endet
+     * @param origin        ID des Ortes an dem der Bustransport startet
+     * @param destination   ID des Ortes an dem der Bustransport endet
      * @param year          Jahr in dem der Bustransport stattfindet
      * @param month         Monat in dem der Bustransport stattfindet
      * @param day           Datum des Tages an dem der Bustransport stattfindet
@@ -25,7 +25,7 @@ public class Bus extends Transport {
      * @param mina          Minute, zu der der Bustransport endet
      * @param capacity      Gesamtkapazität des Bustransportes
      */
-    public Bus(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
+    public Bus(int id, int origin, int destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
         super(id, origin, destination, year, month, day, hourd, mind, houra, mina);
         this.capacity = capacity;
     }

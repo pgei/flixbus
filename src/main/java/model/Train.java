@@ -15,8 +15,8 @@ public class Train extends Transport {
     /**
      * Konstuktor für Erstellung eines Zugtransports, welcher den Konstuktor der erweiterten Klasse Transport überlädt sowie zusätzlich die anfänglichen Kapazitäten des Zuges in der 1. und 2. Klasse definiert.
      *
-     * @param origin            Ort an dem der Zugtransport startet
-     * @param destination       Ort an dem der Zugtransport endet
+     * @param origin            ID des Ortes an dem der Zugtransport startet
+     * @param destination       ID des Ortes an dem der Zugtransport endet
      * @param year              Jahr in dem der Zugtransport stattfindet
      * @param month             Monat in dem der Zugtransport stattfindet
      * @param day               Datum des Tages an dem der Zugtransport stattfindet
@@ -27,7 +27,7 @@ public class Train extends Transport {
      * @param firstcapacity     Gesamtkapazität des Zugtransportes in der 1. Klasse
      * @param secondcapacity    Gesamtkapazität des Zugtransportes in der 2. Klasse
      */
-    public Train(int id, Location origin, Location destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
+    public Train(int id, int origin, int destination, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
         super(id, origin, destination, year, month, day, hourd, mind, houra, mina);
         this.firstCapacity = firstcapacity;
         this.secondCapacity = secondcapacity;
