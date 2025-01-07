@@ -81,17 +81,19 @@ public class BookingSystem {
      * @throws DatabaseException        Wenn ein Fehler bei einer Datenbankoperation im Repository auftritt
      */
     public void registerUser(String name, String email, String password, boolean admin) throws BusinessLogicException, DatabaseException {
-        //First check that ID is unique
+        // Passwort wird gehasht
+        String hashedPassword = PasswordHasher.hashPassword(password);
+        // Prufen ob ID Unique ist
         if (!this.personRepository.containsKey(email)) {
             if (admin) {
-                Administrator newadmin = new Administrator(name, email, password);
+                Administrator newadmin = new Administrator(name, email, hashedPassword);
                 this.personRepository.create(newadmin);
             } else {
-                Costumer newcostumer = new Costumer(name, email, password);
+                Costumer newcostumer = new Costumer(name, email, hashedPassword);
                 this.personRepository.create(newcostumer);
             }
         } else {
-            throw new BusinessLogicException("BusinessLogicException: Registration failed, there already exists a user with the email " + email + "!");
+            throw new BusinessLogicException("Registration failed! ");
         }
     }
 
@@ -99,19 +101,19 @@ public class BookingSystem {
      * Methode die überprüft, ob Person im Repository existiert zu der gegebenen E-Mail-Adresse und, falls dem so ist, auch kontrolliert ob das Passwort zu der Person stimmt
      *
      * @param email                     E-Mail-Adresse die zur Person gehört (Schlüssel)
-     * @param password                  Passwort der Person
+     * @param hashedPassword                  Passwort der Person
      * @return                          Das Personen-Objekt, falls Passwort authentisch ist
      * @throws BusinessLogicException   Wenn das gegebene Passwort nicht korrekt ist
      * @throws EntityNotFoundException  Wenn kein Nutzer-Objekt mit der gegebenen E-Mail-Adresse im Repository gefunden wurde
      * @throws DatabaseException        Wenn ein Fehler bei einer Datenbankoperation im Repository auftritt
      */
-    public Person checkLoginCredentials(String email, String password) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
+    public Person checkLoginCredentials(String email, String hashedPassword) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         Person person = this.personRepository.get(email);
         if (person != null) {
-            if (person.isAuthentic(password)) {
+            if (person.isAuthentic(hashedPassword)) {
                 return person;
-            } else throw new BusinessLogicException("BusinessLogicException: Access denied, invalid password provided!");
-        } else throw new EntityNotFoundException("EntityNotFoundException: No user with the email "+email+" exists!");
+            } else throw new BusinessLogicException("Access denied, invalid password provided!");
+        } else throw new EntityNotFoundException("No user with this email exists!");
     }
 
     /**
@@ -216,7 +218,7 @@ public class BookingSystem {
     public List<Ticket> getALlTickets(Costumer costumer) throws EntityNotFoundException, DatabaseException {
         Costumer found = (Costumer) this.personRepository.get(costumer.getId());
         if (found == null) {
-            throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
+            throw new EntityNotFoundException("User does not exist!");
         } else {
             return found.getAllTickets();
         }
@@ -234,7 +236,7 @@ public class BookingSystem {
     public int getBalance(Costumer costumer) throws EntityNotFoundException, DatabaseException {
         Costumer found = (Costumer) this.personRepository.get(costumer.getId());
         if (found == null) {
-            throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
+            throw new EntityNotFoundException("User does not exist!");
         } else {
             return found.getBalance();
         }
@@ -251,7 +253,7 @@ public class BookingSystem {
     public void addBalance(Costumer costumer, int money) throws EntityNotFoundException, DatabaseException {
         Costumer found = (Costumer) this.personRepository.get(costumer.getId());
         if (found == null) {
-            throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
+            throw new EntityNotFoundException("User does not exist!");
         } else {
             found.setBalance(found.getBalance() + money);
             this.personRepository.update(found);
@@ -269,7 +271,7 @@ public class BookingSystem {
     public void reduceBalance(Costumer costumer, int money) throws EntityNotFoundException, DatabaseException {
         Costumer found = (Costumer) this.personRepository.get(costumer.getId());
         if (found == null) {
-            throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
+            throw new EntityNotFoundException("User does not exist!");
         } else {
             found.setBalance(found.getBalance() - money);
             this.personRepository.update(found);
@@ -297,16 +299,16 @@ public class BookingSystem {
      */
     public void createTicket(Costumer costumer, int transportid, int ticketclass) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         Transport transport = this.transportRepository.get(transportid);
-        if (transport == null) throw new EntityNotFoundException("EntityNotFoundException: There does not exist any transport with the entered ID!");
+        if (transport == null) throw new EntityNotFoundException("There does not exist any transport with the entered ID!");
         Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
         if (upToDateCostumer == null) {
-            throw new EntityNotFoundException("EntityNotFoundException: User does not exist in repository!");
+            throw new EntityNotFoundException("User does not exist!");
         } else {
             switch (transport) {
                 case Bus bus -> addBusTicket(upToDateCostumer, bus);
                 case Train train when ticketclass == 1 -> addFirstClassTrainTicket(upToDateCostumer, train);
                 case Train train when ticketclass == 2 -> addSecondClassTrainTicket(upToDateCostumer, train);
-                default -> throw new RuntimeException("RunTimeException: Unknown class of transport!");
+                default -> throw new RuntimeException("Unknown class of transport!");
             }
         }
     }
@@ -339,9 +341,9 @@ public class BookingSystem {
             reduceBalance(costumer, PRICE_BUS);
             this.transportRepository.update(bus);
         } else if (bus.getCapacity() == 0) {
-            throw new BusinessLogicException("BusinessLogicException: The bus transport is sold out and does not have any capacity left!");
+            throw new BusinessLogicException("We are sorry, this bus is sold out. Please try another transport!");
         } else if (costumer.getBalance() < PRICE_BUS) {
-            throw new BusinessLogicException("BusinessLogicException: You do not have enough money left in your account to purchase this ticket!");
+            throw new BusinessLogicException("You do not have enough money to purchase this ticket!");
         }
     }
 
@@ -374,11 +376,11 @@ public class BookingSystem {
             reduceBalance(costumer, PRICE_1ST_TRAIN);
             this.transportRepository.update(train);
         } else if (train.getCapacity() == 0) {
-            throw new BusinessLogicException("BusinessLogicException: The train transport is sold out and does not have any capacity left!");
+            throw new BusinessLogicException("The train transport is sold out. Please try another transport!");
         } else if (train.getFirstCapacity() == 0) {
-            throw new BusinessLogicException("BusinessLogicException: The train transport is sold out in first class, but second class still has seats left!");
+            throw new BusinessLogicException("The train transport is sold out in first class, but second class still has seats left!");
         } else if (costumer.getBalance() < PRICE_1ST_TRAIN) {
-            throw new BusinessLogicException("BusinessLogicException: You do not have enough money left in your account to purchase this ticket!");
+            throw new BusinessLogicException("You do not have enough money to purchase this ticket!");
         }
     }
 
@@ -410,11 +412,11 @@ public class BookingSystem {
             reduceBalance(costumer, PRICE_2ND_TRAIN);
             this.transportRepository.update(train);
         } else if (train.getCapacity() == 0) {
-            throw new BusinessLogicException("BusinessLogicException: The train transport is sold out and does not have any capacity left!");
+            throw new BusinessLogicException("The train transport is sold out and does not have any capacity left!");
         } else if (train.getSecondCapacity() == 0) {
-            throw new BusinessLogicException("BusinessLogicException: The train transport is sold out in second class, but first class still has seats left!");
+            throw new BusinessLogicException("The train transport is sold out in second class, but first class still has seats left!");
         } else if (costumer.getBalance() < PRICE_2ND_TRAIN) {
-            throw new BusinessLogicException("BusinessLogicException: You do not have enough money left in your account to purchase this ticket!");
+            throw new BusinessLogicException("You do not have enough money left in your account to purchase this ticket!");
         }
     }
 
@@ -422,7 +424,7 @@ public class BookingSystem {
      * Methode die ein Ticket storniert und von dem Transport entfernt.
      * Zuerst wird kontrolliert, ob ein Ticket im Repository unter der Ticket-Nummer gefunden werden kann und ob das Ticket überhaupt von dem gegebenen Kunden gebucht worden ist.
      * Ist dies der Fall, wird das Ticket aus dem Repository gelöscht und ebenfalls beim Kunden und dem Transport aus der Liste entfernt.
-     * Der Kunde erhält in diesem Zusammenhang eine Gutschrift des Ticketpreises abzüglich einer Servicegebühr von 10 %.
+     * Der Kunde erhält in diesem Zusammenhang eine Gutschrift des Ticketpreises abzüglich einer Servicegebühr von 10%.
      * Um die Reihenfolge der Vergabe der Sitzplätze bei Buchung neuer Tickets nicht durcheinanderzubringen, wird das neuste Ticket (also kleinste Sitznummer) an die Stelle des gelöschten Tickets geschrieben.
      * Dh. der Sitzplatz des neusten Tickets ändert sich zu dem Sitzplatz des entfernten Tickets.
      *
@@ -434,17 +436,17 @@ public class BookingSystem {
      */
     public void removeTicket(Costumer costumer, int id) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         Ticket ticket = this.ticketRepository.get(id);
-        if (ticket == null) throw new EntityNotFoundException("EntityNotFoundException: No ticket with this TicketNr exists in the repository!");
+        if (ticket == null) throw new EntityNotFoundException("No ticket with this TicketNr exists!");
         //Kontrolle, ob Ticket wirklich dem Kunden gehört
         if (!ticket.getCostumer().equals(costumer.getId())) {
-            throw new BusinessLogicException("BusinessLogicException: You do not own a ticket with this TicketNr!");
+            throw new BusinessLogicException("You do not own a ticket with this TicketNr!");
         }
         //Transport aktualisieren
         if (ticket instanceof BusTicket) {
             removeTicketFromBusTransport(id);
         } else if (ticket instanceof TrainTicket) {
             removeTicketFromTrainTransport(id);
-        } else throw new RuntimeException("RunTimeException: Ticket has unknown class of transport!");
+        } else throw new RuntimeException("Ticket has unknown class of transport!");
         //Kunde aktualisieren
         Costumer upToDateCostumer = (Costumer) this.personRepository.get(costumer.getId());
         upToDateCostumer.getAllTickets().removeIf(ticket1 -> ticket1.getId().equals(id));
@@ -556,7 +558,7 @@ public class BookingSystem {
                 if (location.getStreet().equals(street) && location.getCity().equals(city)) exists.set(true);
             });
             if (exists.get()) {
-                throw new BusinessLogicException("BusinessLogicException: Location already exists!");
+                throw new BusinessLogicException("Location already exists!");
             }
             while (this.locationRepository.containsKey(this.locationIdCount)) {
                 this.locationIdCount++;
@@ -564,7 +566,7 @@ public class BookingSystem {
             //Location erstellen und in Repository hinterlegen
             Location location = new Location(this.locationIdCount, street, city);
             this.locationRepository.create(location);
-        } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
+        } else throw new BusinessLogicException("You are not authorized to perform this operation!");
     }
 
     /**
@@ -588,7 +590,7 @@ public class BookingSystem {
      */
     public void createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         if (admin.isAdmin()) {
-            if (originid == destinationid) throw new BusinessLogicException("BusinessLogicException: Origin and destination cannot be the same location!");
+            if (originid == destinationid) throw new BusinessLogicException("Error! Origin and destination cannot be the same location!");
             Location origin = this.locationRepository.get(originid);
             Location destination = this.locationRepository.get(destinationid);
             if (origin != null && destination != null) {
@@ -602,11 +604,11 @@ public class BookingSystem {
                 upToDateAdmin.getAllAdministeredTransports().add(transport);
                 this.personRepository.update(upToDateAdmin);
             } else if (origin != null) {
-                throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered destination ID!");
+                throw new EntityNotFoundException("No location with the entered destination ID found!");
             } else if (destination != null) {
-                throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered origin ID!");
-            } else throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!");
-        } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
+                throw new EntityNotFoundException("No location with the entered origin ID found!");
+            } else throw new EntityNotFoundException("No locations with the entered origin and destination IDs found!");
+        } else throw new BusinessLogicException("You are not authorized to perform this operation!");
     }
 
     /**
@@ -631,7 +633,7 @@ public class BookingSystem {
      */
     public void createTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         if (admin.isAdmin()) {
-            if (originid == destinationid) throw new BusinessLogicException("BusinessLogicException: Origin and destination cannot be the same location!");
+            if (originid == destinationid) throw new BusinessLogicException("Warning! Origin and destination cannot be the same location!");
             Location origin = this.locationRepository.get(originid);
             Location destination = this.locationRepository.get(destinationid);
             if (origin != null && destination != null) {
@@ -645,12 +647,12 @@ public class BookingSystem {
                 upToDateAdmin.getAllAdministeredTransports().add(transport);
                 this.personRepository.update(upToDateAdmin);
             } else if (origin != null) {
-                throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered destination ID!");
+                throw new EntityNotFoundException("No location with the entered destination ID found!");
             } else if (destination != null) {
-                throw new EntityNotFoundException("EntityNotFoundException: There does not exist any location with the entered origin ID!");
+                throw new EntityNotFoundException("No location with the entered origin ID found!");
             } else
-                throw new EntityNotFoundException("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!");
-        } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
+                throw new EntityNotFoundException("No locations with the entered origin and destination IDs found!");
+        } else throw new BusinessLogicException("You are not authorized to perform this operation!");
     }
 
     /**
@@ -683,8 +685,8 @@ public class BookingSystem {
                     this.ticketRepository.delete(ticket.getId());
                 }
                 this.transportRepository.delete(id);
-            } else throw new BusinessLogicException("BusinessLogicException: You are not authorized to remove this transport since you do not manage it!");
-        } else throw new EntityNotFoundException("EntityNotFoundException: No transport with this ID exists in the repository!");
+            } else throw new BusinessLogicException("You are not authorized to remove this transport since you do not manage it!");
+        } else throw new EntityNotFoundException("No transport with this ID exists in the repository!");
     }
 
     /**
@@ -719,10 +721,10 @@ public class BookingSystem {
                         }
                         return ticketList;
                     }
-                    default -> throw new RuntimeException("RunTimeException: Unknown class of transport!");
+                    default -> throw new RuntimeException("Unknown class of transport!");
                 }
-            } else throw new EntityNotFoundException("EntityNotFoundException: No transport with this ID exists in the repository!");
-        } else throw new BusinessLogicException("BusinessLogicException: Not authorized to perform this operation!");
+            } else throw new EntityNotFoundException("No transport with this ID exists!");
+        } else throw new BusinessLogicException("You are not authorized to perform this operation!");
     }
 
     /**

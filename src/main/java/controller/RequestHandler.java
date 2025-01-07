@@ -6,6 +6,7 @@ import main.java.exceptions.EntityNotFoundException;
 import main.java.exceptions.ValidationException;
 import main.java.model.*;
 import main.java.service.BookingSystem;
+import main.java.service.PasswordHasher;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -41,17 +42,18 @@ public class RequestHandler {
     public void registerAsCostumer(String name, String email, String password) throws ValidationException {
         try {
             if (Pattern.matches("[A-Za-z.0-9]*@[A-Za-z.0-9]*",email)) {
-                bookingSystem.registerUser(name, email, password, false);
+                String hashedPassword = PasswordHasher.hashPassword(password);
+                bookingSystem.registerUser(name, email, hashedPassword, false);
                 System.out.println("Registration as costumer successful! Welcome, " + name + "!");
             } else {
-                throw new ValidationException("ValidationException: Entered email is not of correct format!");
+                throw new ValidationException("Entered email is not of correct format!");
             }
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
-            System.out.println("DatabaseException: Registration was not possible due to error in database operations!");
+            System.out.println("Registration was not possible due to error in database operations!");
         }
     }
 
@@ -66,17 +68,18 @@ public class RequestHandler {
     public void registerAsAdministrator(String name, String email, String password) throws ValidationException {
         try {
             if (Pattern.matches("[A-Za-z.0-9]*@[A-Za-z.0-9]*",email)) {
-                bookingSystem.registerUser(name, email, password, true);
+                String hashedPassword = PasswordHasher.hashPassword(password);
+                bookingSystem.registerUser(name, email, hashedPassword, true);
                 System.out.println("Administrator registration successful! Welcome, " + name + "!");
             } else {
-                throw new ValidationException("ValidationException: Entered email is not of correct format!");
+                throw new ValidationException("Entered email is not of correct format!");
             }
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
-            System.out.println("DatabaseException: Registration was not possible due to error in database operations!");
+            System.out.println("Registration was not possible due to error in database operations!");
         }
     }
 
@@ -89,7 +92,8 @@ public class RequestHandler {
      */
     public Person login(String email, String password) {
         try {
-            Person loggedin = bookingSystem.checkLoginCredentials(email, password);
+            String hashedPassword = PasswordHasher.hashPassword(password);
+            Person loggedin = bookingSystem.checkLoginCredentials(email, hashedPassword);
             System.out.println("Login successful! Welcome, " + loggedin.getUsername() + "!");
             return loggedin;
         } catch (EntityNotFoundException | BusinessLogicException e) {
@@ -97,7 +101,7 @@ public class RequestHandler {
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
-            System.out.println("DatabaseException: Login was not possible due to error in database operations!");
+            System.out.println("Login was not possible due to error in database operations!");
         }
         return null;
     }

@@ -8,6 +8,7 @@ import main.java.repository.FileRepository;
 import main.java.repository.IRepository;
 import main.java.repository.InMemoryRepository;
 import main.java.service.BookingSystem;
+import main.java.service.PasswordHasher;
 
 import java.util.Scanner;
 
@@ -298,12 +299,12 @@ public class App {
             if (key.equals("geheim1234")) {
                 this.requestHandler.registerAsAdministrator(username, email, password);
             } else {
-                throw new ValidationException("ValidationException: Wrong key, administrator account generation request denied!");
+                throw new ValidationException("Wrong key, administrator account generation request denied!");
             }
         } else if (admin.equals("No")) {
             this.requestHandler.registerAsCostumer(username, email, password);
         } else {
-            throw new ValidationException("ValidationException: Invalid choice, choose between Yes or No!");
+            throw new ValidationException("Invalid choice, choose between Yes or No!");
         }
     }
 
@@ -318,7 +319,8 @@ public class App {
         String email = scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.nextLine();
-        this.person = requestHandler.login(email, password);
+        String hashedPassword = PasswordHasher.hashPassword(password);
+        this.person = requestHandler.login(email, hashedPassword);
     }
 
     /**
