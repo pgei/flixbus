@@ -130,11 +130,11 @@ public class App {
                     System.out.println("Exiting the system. Goodbye!");
                     return false;
                 default:
-                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
             return true;
         } catch (NumberFormatException e) {
-            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -201,10 +201,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 
@@ -271,10 +271,10 @@ public class App {
                     System.out.println("Logout successful!");
                     break;
                 default:
-                    throw new ValidationException("ValidationException: Invalid choice of option, please try again!");
+                    throw new ValidationException("Invalid choice of option, please try again!");
             }
         } catch (NumberFormatException e) {
-            throw new ValidationException("ValidationException: Invalid choice, please only enter an integer number!");
+            throw new ValidationException("Invalid choice, please only enter an integer number!");
         }
     }
 

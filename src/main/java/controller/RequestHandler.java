@@ -100,9 +100,11 @@ public class RequestHandler {
      */
     public void viewAllTransports() {
         try {
+            System.out.println();
             StringBuilder out = new StringBuilder("--- View transports ---\n");
             bookingSystem.getAllTransports().forEach(transport -> out.append(transport.toString()).append("\n"));
             System.out.println(out);
+            viewAllDestinations();
         } catch (DatabaseException e) {
             System.err.println(e.getMessage());
             //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
