@@ -7,10 +7,10 @@ import java.security.NoSuchAlgorithmException;
 public class PasswordHasher {
 
     /**
-     * Hashes das Passwort mit dem SHA-256-Algorithmus.
+     * Hasht das Passwort mit dem SHA-256-Algorithmus.
      *
-     * @param password Das Klartext-Passwort, das gehasht werden soll.
-     * @return Das gehashte Passwort als hexadezimale Zeichenkette.
+     * @param password  Das Klartext-Passwort, das gehasht werden soll.
+     * @return          Das gehashte Passwort als hexadezimale Zeichenkette.
      */
     public static String hashPassword(String password) {
         try {
@@ -29,7 +29,7 @@ public class PasswordHasher {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Mistake occured when hashing password!", e);
+            throw new RuntimeException("Error occured when hashing password!", e);
         }
     }
 }

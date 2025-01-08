@@ -11,6 +11,7 @@ import main.java.service.BookingSystem;
 import main.java.service.PasswordHasher;
 
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  * Die Klasse App stellt die Benutzeroberfläche für das Transport-Buchungssystem bereit.
@@ -289,6 +290,7 @@ public class App {
         String username = scanner.nextLine();
         System.out.println("Enter email: ");
         String email = scanner.nextLine();
+        if (!Pattern.matches("[A-Za-z.0-9]*@[A-Za-z.0-9]*",email)) throw new ValidationException("Entered email is not of correct format!");
         System.out.println("Enter password: ");
         String password = scanner.nextLine();
         System.out.println("Should this be an administrator account? (Yes/No)");
@@ -326,14 +328,16 @@ public class App {
     /**
      * Liest den Betrag, der dem Konto des Benutzers hinzugefügt werden soll.
      *
-     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return          Betrag in Euro, der hinzugefügt werden soll.
+     * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return                      Betrag in Euro, der hinzugefügt werden soll.
+     * @throws ValidationException  Wenn negativer Geldbetrag eingegeben wurde
      */
-    private int readBalanceAddition(Scanner scanner) {
+    private int readBalanceAddition(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Add balance ---");
         System.out.println("Enter Euros to add to your account balance: ");
-        String money = scanner.nextLine();
-        return Integer.parseInt(money);
+        int amount = Integer.parseInt(scanner.nextLine());
+        if (amount < 0) throw new ValidationException("A negative amount does not increase the balance!");
+        return amount;
     }
 
     /**
@@ -348,12 +352,13 @@ public class App {
      * </ul>
      *
      * @param scanner                Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @throws ValidationException   Wenn Nutzer keine existierende Klasse eingibt
+     * @throws ValidationException   Wenn Nutzer keine existierende Klasse oder eine negative ID eingibt
      */
     public void buyTicketRequest(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Buy ticket ---");
         System.out.println("Enter ID for transport on which you would like to reserve a ticket: ");
         int transportid = Integer.parseInt(scanner.nextLine());
+        if (transportid < 0) throw new ValidationException("Transport ID cannot be negative!");
         System.out.println("""
                 -------------------------
                 For Bus you have the following class options:\s
@@ -366,7 +371,7 @@ public class App {
         if (ticketclass == 1 || ticketclass == 2) {
             this.requestHandler.buyTicket((Costumer) this.person, transportid, ticketclass);
         } else {
-            throw new ValidationException("ValidationException: Invalid choice, only classes 1 and 2 exist!");
+            throw new ValidationException("Invalid choice, only classes 1 and 2 exist!");
         }
 
     }
@@ -401,7 +406,7 @@ public class App {
      * Fügt einen neuen Transport in das System ein.
      *
      * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @throws ValidationException  Wenn Nutzer kein existierendes Transportmittel eingibt
+     * @throws ValidationException  Wenn Kapazität, Jahr, Monat, Tag, Abfahrtszeit oder Ankunftszeit nicht innerhalb erwartetem Intervall liegt oder Nutzer kein existierendes Transportmittel eingibt
      */
     public void addTransport(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Add transport ---");
@@ -411,32 +416,42 @@ public class App {
         int destinationid = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter year when the transport will happen: ");
         int year = Integer.parseInt(scanner.nextLine());
+        if (year < 0) throw new ValidationException("Year cannot be negative!");
         System.out.println("Enter month (as number!) when the transport will happen: ");
         int month = Integer.parseInt(scanner.nextLine());
+        if (!(0 < month && month < 13)) throw new ValidationException("Month must be in range 1 to 12!");
         System.out.println("Enter day (as number!) when the transport will happen: ");
         int day = Integer.parseInt(scanner.nextLine());
+        if (!(0 < day && day < 32)) throw new ValidationException("Day must be in range 1 to 31!");
         System.out.println("Enter hour at which the transport will start: ");
         int hourd = Integer.parseInt(scanner.nextLine());
+        if (!(0 <= hourd && hourd < 24)) throw new ValidationException("Departure hour must be in range 0 to 23!");
         System.out.println("Enter minute at which the transport will start: ");
         int mind = Integer.parseInt(scanner.nextLine());
+        if (!(0 <= mind && mind < 60)) throw new ValidationException("Departure minute must be in range 0 to 59!");
         System.out.println("Enter hour at which the transport will arrive: ");
         int houra = Integer.parseInt(scanner.nextLine());
+        if (!(0 <= houra && houra < 24)) throw new ValidationException("Arrival hour must be in range 0 to 23!");
         System.out.println("Enter minute at which the transport will arrive: ");
         int mina = Integer.parseInt(scanner.nextLine());
+        if (!(0 <= mina && mina < 60)) throw new ValidationException("Arrival minute must be in range 0 to 59!");
         System.out.println("Enter means of transport (Bus/Train):");
         String meansoftransport = scanner.nextLine();
         if (meansoftransport.equals("Bus")) {
             System.out.println("Please enter the capacity:");
             int capacity = Integer.parseInt(scanner.nextLine());
+            if (capacity <= 0) throw new ValidationException("Capacity cannot be zero or less!");
             this.requestHandler.addBusTransport((Administrator) this.person, originid, destinationid, year, month, day, hourd, mind, houra, mina, capacity);
         } else if (meansoftransport.equals("Train")) {
             System.out.println("Please enter the first class capacity:");
             int firstcapacity = Integer.parseInt(scanner.nextLine());
+            if (firstcapacity < 0) throw new ValidationException("First class capacity cannot be zero or less!");
             System.out.println("Please enter the second class capacity:");
             int secondcapacity = Integer.parseInt(scanner.nextLine());
+            if (secondcapacity <= 0) throw new ValidationException("Second class capacity cannot be zero or less!");
             this.requestHandler.addTrainTransport((Administrator) this.person, originid, destinationid, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
         } else {
-            throw new ValidationException("ValidationException: Invalid means of transport, only Bus and Train exist!");
+            throw new ValidationException("Invalid means of transport, only Bus and Train exist!");
         }
     }
 
@@ -468,27 +483,33 @@ public class App {
      * Filtert Transporte basierend auf einem angegebenen Ursprungs- und Zielort.
      *
      * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @throws ValidationException  Wenn negative ID (Ausnahme -1) eingegeben wird
      */
-    public void filterTransportsByLocation(Scanner scanner) {
+    public void filterTransportsByLocation(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Filter transports by location ---");
         this.requestHandler.viewAllDestinations();
         System.out.println("Enter location ID for origin (type -1 to select all available locations as origin): ");
         int origin = Integer.parseInt(scanner.nextLine());
+        if (origin < -1) throw new ValidationException("Location IDs are not negative!");
         System.out.println("Enter location ID for destination (type -1 to select all available locations as destination): ");
         int destination = Integer.parseInt(scanner.nextLine());
+        if (destination < -1) throw new ValidationException("Location IDs are not negative!");
         this.requestHandler.filterByLocation(origin, destination);
     }
 
     /**
      * Liest den maximalen Ticketpreis zum Filtern der Transporte.
      *
-     * @param scanner   Scanner-Objekt zum Lesen der Benutzereingaben.
-     * @return          maximaler Ticketpreis in Euro.
+     * @param scanner               Scanner-Objekt zum Lesen der Benutzereingaben.
+     * @return                      Maximaler Ticketpreis in Euro.
+     * @throws ValidationException  Wenn negativer Preis eingegeben wurde
      */
-    public int readFilterByPrice(Scanner scanner) {
+    public int readFilterByPrice(Scanner scanner) throws ValidationException {
         System.out.println("\n--- Filter transports by price ---");
         System.out.println("Enter maximum ticket price in Euro:");
-        return Integer.parseInt(scanner.nextLine());
+        int price = Integer.parseInt(scanner.nextLine());
+        if (price < 0) throw new ValidationException("Cannot search for transports with negative price!");
+        return price;
     }
 
     /**

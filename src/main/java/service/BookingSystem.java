@@ -112,8 +112,8 @@ public class BookingSystem {
         if (person != null) {
             if (person.isAuthentic(hashedPassword)) {
                 return person;
-            } else throw new BusinessLogicException("Access denied, invalid password provided!");
-        } else throw new EntityNotFoundException("No user with this email exists!");
+            } else throw new BusinessLogicException("Access denied, invalid combination of email and password provided!");
+        } else throw new EntityNotFoundException("Access denied, invalid combination of email and password provided!");
     }
 
     /**
@@ -590,7 +590,7 @@ public class BookingSystem {
      */
     public void createBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) throws BusinessLogicException, EntityNotFoundException, DatabaseException {
         if (admin.isAdmin()) {
-            if (originid == destinationid) throw new BusinessLogicException("Error! Origin and destination cannot be the same location!");
+            if (originid == destinationid) throw new BusinessLogicException("Origin and destination cannot be the same location!");
             Location origin = this.locationRepository.get(originid);
             Location destination = this.locationRepository.get(destinationid);
             if (origin != null && destination != null) {
@@ -771,8 +771,8 @@ public class BookingSystem {
                     .filter(ticket -> ticket.getTransport() == (int) transport.getId())
                     .count();
             //Fügt die Summe der für diesen Transport gezählte Tickets zur Summe der für Abfahrts- und Ankunftsort bereits gezählten Tickets
-            locationTicketCountMap.merge((int) transport.getOrigin(), ticketCount, Integer::sum);
-            locationTicketCountMap.merge((int) transport.getDestination(), ticketCount, Integer::sum);
+            locationTicketCountMap.merge(transport.getOrigin(), ticketCount, Integer::sum);
+            locationTicketCountMap.merge(transport.getDestination(), ticketCount, Integer::sum);
         }
 
         // Sortiert die Location-IDs nach der Gesamtanzahl der Tickets und wandelt Liste dann in Orts-Liste um

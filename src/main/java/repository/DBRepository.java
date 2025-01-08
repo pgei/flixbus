@@ -257,6 +257,8 @@ public class DBRepository<T extends ID> implements IRepository<T> {
             } catch (SQLException e) {
                 throw new DatabaseException("Error fetching entry with ID " + id + " from table " + type);
             }
+        } else if (type.isEmpty()) {
+            return null;
         } else throw new DatabaseException("Transport of unknown type: "+type);
         return null;
     }
@@ -764,5 +766,6 @@ public class DBRepository<T extends ID> implements IRepository<T> {
         }
         return 0;
     }
+
 
 }

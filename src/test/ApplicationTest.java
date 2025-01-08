@@ -93,7 +93,7 @@ public class ApplicationTest {
     @Test
     void testRegisterCostumerWithExistingEmail() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.registerUser("Rainer", "philipp@test.de", "geheim", false));
-        assertEquals("BusinessLogicException: Registration failed, there already exists a user with the email philipp@test.de!", e.getMessage());
+        assertEquals("Registration failed! ", e.getMessage());
     }
 
     @Test
@@ -105,13 +105,13 @@ public class ApplicationTest {
     @Test
     void testLoginWithInvalidPassword() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.checkLoginCredentials("daniel@test.de", "tes"));
-        assertEquals("BusinessLogicException: Access denied, invalid password provided!", e.getMessage());
+        assertEquals("Access denied, invalid combination of email and password provided!", e.getMessage());
     }
 
     @Test
     void testLoginWithInvalidEmail() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.checkLoginCredentials("daniel@tes.de", "test"));
-        assertEquals("EntityNotFoundException: No user with the email daniel@tes.de exists!", e.getMessage());
+        assertEquals("Access denied, invalid combination of email and password provided!", e.getMessage());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class ApplicationTest {
     @Test
     void testGetAllTicketsFromNonExistingCostumer() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.getALlTickets(new Costumer("Random", "random@test.de", "test")));
-        assertEquals("EntityNotFoundException: User does not exist in repository!", e.getMessage());
+        assertEquals("User does not exist!", e.getMessage());
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ApplicationTest {
     @Test
     void testGetBalanceFromNonExistingCostumer() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.getBalance(new Costumer("Random", "random@test.de", "test")));
-        assertEquals("EntityNotFoundException: User does not exist in repository!", e.getMessage());
+        assertEquals("User does not exist!", e.getMessage());
     }
 
     @Test
@@ -187,7 +187,7 @@ public class ApplicationTest {
     @Test
     void testAddBalanceFromNonExistingCostumer() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.addBalance(new Costumer("Random", "random@test.de", "test"), 20));
-        assertEquals("EntityNotFoundException: User does not exist in repository!", e.getMessage());
+        assertEquals("User does not exist!", e.getMessage());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ApplicationTest {
     @Test
     void testReduceBalanceFromNonExistingCostumer() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.reduceBalance(new Costumer("Random", "random@test.de", "test"), 20));
-        assertEquals("EntityNotFoundException: User does not exist in repository!", e.getMessage());
+        assertEquals("User does not exist!", e.getMessage());
     }
 
     @Test
@@ -211,19 +211,19 @@ public class ApplicationTest {
     @Test
     void testCreatingTicketWithNonExistingCostumer() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createTicket(new Costumer("Random", "random@test.de", "test"), 0, 2));
-        assertEquals("EntityNotFoundException: User does not exist in repository!", e.getMessage());
+        assertEquals("User does not exist!", e.getMessage());
     }
 
     @Test
     void testCreatingTicketWithNonExistingTransport() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createTicket(new Costumer("Daniel", "daniel@test.de", "test"), 9, 2));
-        assertEquals("EntityNotFoundException: There does not exist any transport with the entered ID!", e.getMessage());
+        assertEquals("There does not exist any transport with the entered ID!", e.getMessage());
     }
 
     @Test
     void testCreatingTicketForSoldOutBusTransport() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.createTicket(new Costumer("Daniel", "daniel@test.de", "test"), 1, 2));
-        assertEquals("BusinessLogicException: The bus transport is sold out and does not have any capacity left!", e.getMessage());
+        assertEquals("We are sorry, this bus is sold out. Please try another transport!", e.getMessage());
     }
 
     @Test
@@ -233,13 +233,13 @@ public class ApplicationTest {
             bookingSystem.createTicket(new Costumer("Daniel", "daniel@test.de", "test"), 2, 1);
             bookingSystem.createTicket(new Costumer("Daniel", "daniel@test.de", "test"), 2, 1);
         });
-        assertEquals("BusinessLogicException: The train transport is sold out in first class, but second class still has seats left!", e.getMessage());
+        assertEquals("The train transport is sold out in first class, but second class still has seats left!", e.getMessage());
     }
 
     @Test
     void testCreatingTicketWithTooSmallBalance() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.createTicket(new Costumer("Daniel", "daniel@test.de", "test"), 2, 1));
-        assertEquals("BusinessLogicException: You do not have enough money left in your account to purchase this ticket!", e.getMessage());
+        assertEquals("You do not have enough money to purchase this ticket!", e.getMessage());
     }
 
     @Test
@@ -251,13 +251,13 @@ public class ApplicationTest {
     @Test
     void testCancelTicketWithNonExistingTicket() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.removeTicket(new Costumer("Daniel", "daniel@test.de", "test"), 9));
-        assertEquals("EntityNotFoundException: No ticket with this TicketNr exists in the repository!", e.getMessage());
+        assertEquals("No ticket with this TicketNr exists!", e.getMessage());
     }
 
     @Test
     void testCancelTicketNotOwnedByCostumer() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.removeTicket(new Costumer("Daniel", "daniel@test.de", "test"), 2));
-        assertEquals("BusinessLogicException: You do not own a ticket with this TicketNr!", e.getMessage());
+        assertEquals("You do not own a ticket with this TicketNr!", e.getMessage());
     }
 
     @Test
@@ -269,7 +269,7 @@ public class ApplicationTest {
     @Test
     void testCreatingLocationThatExists() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.createLocation(new Administrator("Philipp", "philipp@test.de", "test"), "Strada Mihail Kogălniceanu", "Cluj-Napoca"));
-        assertEquals("BusinessLogicException: Location already exists!", e.getMessage());
+        assertEquals("Location already exists!", e.getMessage());
     }
 
     @Test
@@ -281,25 +281,25 @@ public class ApplicationTest {
     @Test
     void testCreatingBusTransportWithSameLocationForOriginAndDestination() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.createBusTransport(new Administrator("Philipp", "philipp@test.de", "test"), 2, 2, 2024, 10, 13, 12, 0, 15, 0, 20));
-        assertEquals("BusinessLogicException: Origin and destination cannot be the same location!", e.getMessage());
+        assertEquals("Origin and destination cannot be the same location!", e.getMessage());
     }
 
     @Test
     void testCreatingBusTransportWithNonExistingOrigin() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createBusTransport(new Administrator("Philipp", "philipp@test.de", "test"), 6, 2, 2024, 10, 13, 12, 0, 15, 0, 20));
-        assertEquals("EntityNotFoundException: There does not exist any location with the entered origin ID!", e.getMessage());
+        assertEquals("No location with the entered origin ID found!", e.getMessage());
     }
 
     @Test
     void testCreatingBusTransportWithNonExistingDestination() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createBusTransport(new Administrator("Philipp", "philipp@test.de", "test"), 2, 6, 2024, 10, 13, 12, 0, 15, 0, 20));
-        assertEquals("EntityNotFoundException: There does not exist any location with the entered destination ID!", e.getMessage());
+        assertEquals("No location with the entered destination ID found!", e.getMessage());
     }
 
     @Test
     void testCreatingBusTransportWithNonExistingLocations() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createBusTransport(new Administrator("Philipp", "philipp@test.de", "test"), 5, 6, 2024, 10, 13, 12, 0, 15, 0, 20));
-        assertEquals("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!", e.getMessage());
+        assertEquals("No locations with the entered origin and destination IDs found!", e.getMessage());
     }
 
     @Test
@@ -311,25 +311,25 @@ public class ApplicationTest {
     @Test
     void testCreatingTrainTransportWithSameLocationForOriginAndDestination() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.createTrainTransport(new Administrator("Philipp", "philipp@test.de", "test"), 2, 2, 2024, 10, 13, 12, 0, 15, 0, 2, 10));
-        assertEquals("BusinessLogicException: Origin and destination cannot be the same location!", e.getMessage());
+        assertEquals("Warning! Origin and destination cannot be the same location!", e.getMessage());
     }
 
     @Test
     void testCreatingTrainTransportWithNonExistingOrigin() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createTrainTransport(new Administrator("Philipp", "philipp@test.de", "test"), 6, 2, 2024, 10, 13, 12, 0, 15, 0, 2, 10));
-        assertEquals("EntityNotFoundException: There does not exist any location with the entered origin ID!", e.getMessage());
+        assertEquals("No location with the entered origin ID found!", e.getMessage());
     }
 
     @Test
     void testCreatingTrainTransportWithNonExistingDestination() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createTrainTransport(new Administrator("Philipp", "philipp@test.de", "test"), 2, 6, 2024, 10, 13, 12, 0, 15, 0, 2, 10));
-        assertEquals("EntityNotFoundException: There does not exist any location with the entered destination ID!", e.getMessage());
+        assertEquals("No location with the entered destination ID found!", e.getMessage());
     }
 
     @Test
     void testCreatingTrainTransportWithNonExistingLocations() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.createTrainTransport(new Administrator("Philipp", "philipp@test.de", "test"), 5, 6, 2024, 10, 13, 12, 0, 15, 0, 2, 10));
-        assertEquals("EntityNotFoundException: There do not exist any locations with the entered origin and destination IDs!", e.getMessage());
+        assertEquals("No locations with the entered origin and destination IDs found!", e.getMessage());
     }
 
     @Test
@@ -343,13 +343,13 @@ public class ApplicationTest {
     @Test
     void testRemoveNonExistingTransport() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.removeTransport(new Administrator("Philipp", "philipp@test.de", "test"), 5));
-        assertEquals("EntityNotFoundException: No transport with this ID exists in the repository!", e.getMessage());
+        assertEquals("No transport with this ID exists in the repository!", e.getMessage());
     }
 
     @Test
     void testRemoveTransportNotManagedByAdministrator() {
         BusinessLogicException e = assertThrows(BusinessLogicException.class, () -> bookingSystem.removeTransport(new Administrator("Philipp", "philipp@test.de", "test"), 2));
-        assertEquals("BusinessLogicException: You are not authorized to remove this transport since you do not manage it!", e.getMessage());
+        assertEquals("You are not authorized to remove this transport since you do not manage it!", e.getMessage());
     }
 
     @Test
@@ -360,7 +360,7 @@ public class ApplicationTest {
     @Test
     void testGetAllTicketsForTransportNotExisting() {
         EntityNotFoundException e = assertThrows(EntityNotFoundException.class, () -> bookingSystem.getAllTransportTickets(new Administrator("Philipp", "philipp@test.de", "test"), 5));
-        assertEquals("EntityNotFoundException: No transport with this ID exists in the repository!", e.getMessage());
+        assertEquals("No transport with this ID exists!", e.getMessage());
     }
 
 }

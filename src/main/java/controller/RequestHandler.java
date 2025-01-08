@@ -9,7 +9,6 @@ import main.java.service.BookingSystem;
 import main.java.service.PasswordHasher;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 import java.util.List;
 
@@ -37,17 +36,12 @@ public class RequestHandler {
      * @param name                  Name des Benutzers.
      * @param email                 E-Mail-Adresse des Benutzers.
      * @param password              Passwort des Benutzers.
-     * @throws ValidationException  Wenn gegebene E-Mail-Adresse nicht korrektes Format hat
      */
-    public void registerAsCostumer(String name, String email, String password) throws ValidationException {
+    public void registerAsCostumer(String name, String email, String password) {
         try {
-            if (Pattern.matches("[A-Za-z.0-9]*@[A-Za-z.0-9]*",email)) {
-                String hashedPassword = PasswordHasher.hashPassword(password);
-                bookingSystem.registerUser(name, email, hashedPassword, false);
-                System.out.println("Registration as costumer successful! Welcome, " + name + "!");
-            } else {
-                throw new ValidationException("Entered email is not of correct format!");
-            }
+            String hashedPassword = PasswordHasher.hashPassword(password);
+            bookingSystem.registerUser(name, email, hashedPassword, false);
+            System.out.println("Registration as costumer successful! Welcome, " + name + "!");
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
@@ -63,17 +57,12 @@ public class RequestHandler {
      * @param name     Name des Benutzers.
      * @param email    E-Mail-Adresse des Benutzers.
      * @param password Passwort des Benutzers.
-     * @throws ValidationException  Wenn gegebene E-Mail-Adresse nicht korrektes Format hat
      */
-    public void registerAsAdministrator(String name, String email, String password) throws ValidationException {
+    public void registerAsAdministrator(String name, String email, String password) {
         try {
-            if (Pattern.matches("[A-Za-z.0-9]*@[A-Za-z.0-9]*",email)) {
-                String hashedPassword = PasswordHasher.hashPassword(password);
-                bookingSystem.registerUser(name, email, hashedPassword, true);
-                System.out.println("Administrator registration successful! Welcome, " + name + "!");
-            } else {
-                throw new ValidationException("Entered email is not of correct format!");
-            }
+            String hashedPassword = PasswordHasher.hashPassword(password);
+            bookingSystem.registerUser(name, email, hashedPassword, true);
+            System.out.println("Administrator registration successful! Welcome, " + name + "!");
         } catch (BusinessLogicException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
@@ -177,25 +166,20 @@ public class RequestHandler {
     /**
      * Filtert verfügbare Transporte basierend auf dem maximalen Preis.
      *
-     * @param price maximaler Preis in Euro.
-     * @throws ValidationException Wenn negativer Preis eingegeben wurde
+     * @param price Maximaler Preis in Euro.
      */
-    public void filterByPrice(int price) throws ValidationException {
-        if (price < 0) {
-            throw new ValidationException("ValidationException: Cannot search for transports with negative price!");
-        } else {
-            try {
-                StringBuilder out = new StringBuilder("--- Available transports with a maximum price of " + price + " Euro ---\n");
-                bookingSystem.getTransportsFilteredByMaxPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
-                System.out.println(out);
-            } catch (DatabaseException e) {
-                System.err.println(e.getMessage());
-                //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
-                System.out.println("DatabaseException: Filtering transports was not possible due to error in database operations!");
-            }
+    public void filterByPrice(int price) {
+        try {
+            StringBuilder out = new StringBuilder("--- Available transports with a maximum price of " + price + " Euro ---\n");
+            bookingSystem.getTransportsFilteredByMaxPrice(price).forEach(transport -> out.append(transport.toString()).append("\n"));
+            System.out.println(out);
+        } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
+            //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
+            System.out.println("DatabaseException: Filtering transports was not possible due to error in database operations!");
         }
-
     }
+
 
     /**
      * Gibt Transporte in aufsteigender Reihenfolge sortiert nach Datum, und zweitrangig Abfahrtsuhrzeit, aus.
@@ -267,24 +251,20 @@ public class RequestHandler {
      *
      * @param costumer              Kunde, dem Guthaben hinzugefügt wird.
      * @param amount                Hinzuzufügender Betrag in Euro.
-     * @throws ValidationException  Wenn negativer Geldbetrag eingegeben wurde
      */
-    public void addBalance(Costumer costumer, int amount) throws ValidationException {
-        if (amount < 0) {
-            throw new ValidationException("ValidationException: A negative amount does not increase the balance!");
-        } else {
-            try {
-                bookingSystem.addBalance(costumer, amount);
-                System.out.println("Added " + amount + " Euros to your acccount, you now have a total of " + bookingSystem.getBalance(costumer) + " Euros.");
-            } catch (EntityNotFoundException e) {
-                System.out.println(e.getMessage());
-            } catch (DatabaseException e) {
-                System.err.println(e.getMessage());
-                //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
-                System.out.println("DatabaseException: Fetching balance was not possible due to error in database operations!");
-            }
+    public void addBalance(Costumer costumer, int amount) {
+        try {
+            bookingSystem.addBalance(costumer, amount);
+            System.out.println("Added " + amount + " Euros to your acccount, you now have a total of " + bookingSystem.getBalance(costumer) + " Euros.");
+        } catch (EntityNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (DatabaseException e) {
+            System.err.println(e.getMessage());
+            //Exception-Message könnte an dieser Stelle in einen Error-Log geschrieben werden, da Nutzer nicht die Details sehen sollte
+            System.out.println("DatabaseException: Fetching balance was not possible due to error in database operations!");
         }
     }
+
 
     /**
      * Zeigt alle Tickets eines Kunden an.
@@ -299,7 +279,7 @@ public class RequestHandler {
                 System.out.println(ticket.toString());
                 bookingSystem.getAllTransports().forEach(transport -> {
                     if ((int) transport.getId() == ticket.getTransport()) {
-                        System.out.print(transport.toString());
+                        System.out.print(transport);
                     }
                 });
                 System.out.println("\n+++++++++++++++++++++++++++++++++++++++++\n");
@@ -326,7 +306,7 @@ public class RequestHandler {
             if (ticketclass == 1 || ticketclass == 2) {
                 bookingSystem.createTicket(costumer, transportid, ticketclass);
                 System.out.println("Successfully reserved a ticket on Transport with Id " + transportid + "!");
-            } else throw new ValidationException("ValidationException: No correct ticket class was entered!");
+            } else throw new ValidationException("No correct ticket class was entered!");
         } catch (BusinessLogicException | EntityNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (DatabaseException e) {
@@ -389,16 +369,8 @@ public class RequestHandler {
      * @param houra                 Stunde der Ankunft.
      * @param mina                  Minute der Ankunft.
      * @param capacity              Kapazität des Busses.
-     * @throws ValidationException  Wenn Kapazität, Monat, Tag, Abfahrtszeit oder Ankunftszeit nicht innerhalb erwartetem Intervall liegt
      */
-    public void addBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) throws ValidationException {
-        if (capacity <= 0) throw new ValidationException("ValidationException: Capacity cannot be zero or less!");
-        if (!(0 < month && month < 13)) throw new ValidationException("ValidationException: Month must be in range 1 to 12!");
-        if (!(0 < day && day < 32)) throw new ValidationException("ValidationException: Day must be in range 1 to 31!");
-        if (!(0 <= hourd && hourd < 24)) throw new ValidationException("ValidationException: Departure hour must be in range 0 to 23!");
-        if (!(0 <= houra && houra < 24)) throw new ValidationException("ValidationException: Arrival hour must be in range 0 to 23!");
-        if (!(0 <= mind && mind < 60)) throw new ValidationException("ValidationException: Departure minute must be in range 0 to 59!");
-        if (!(0 <= mina && mina < 60)) throw new ValidationException("ValidationException: Arrival minute must be in range 0 to 59!");
+    public void addBusTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int capacity) {
         try {
             bookingSystem.createBusTransport(admin, originid, destinationid, year, month, day, hourd, mind, houra, mina, capacity);
             System.out.println("Successfully created new bus transport!");
@@ -426,17 +398,8 @@ public class RequestHandler {
      * @param mina                  Minute der Ankunft.
      * @param firstcapacity         Kapazität der 1. Klasse.
      * @param secondcapacity        Kapazität der 2. Klasse.
-     * @throws ValidationException  Wenn Kapazität, Monat, Tag, Abfahrtszeit oder Ankunftszeit nicht innerhalb erwartetem Intervall liegt
      */
-    public void addTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) throws ValidationException {
-        if (firstcapacity < 0) throw new ValidationException("ValidationException: First class capacity cannot be negative!");
-        if (secondcapacity <= 0) throw new ValidationException("ValidationException: Second class capacity cannot be zero or less!");
-        if (!(0 < month && month < 13)) throw new ValidationException("ValidationException: Month must be in range 1 to 12!");
-        if (!(0 < day && day < 32)) throw new ValidationException("ValidationException: Day must be in range 1 to 31!");
-        if (!(0 <= hourd && hourd < 24)) throw new ValidationException("ValidationException: Departure hour must be in range 0 to 23!");
-        if (!(0 <= houra && houra < 24)) throw new ValidationException("ValidationException: Arrival hour must be in range 0 to 23!");
-        if (!(0 <= mind && mind < 60)) throw new ValidationException("ValidationException: Departure minute must be in range 0 to 59!");
-        if (!(0 <= mina && mina < 60)) throw new ValidationException("ValidationException: Arrival minute must be in range 0 to 59!");
+    public void addTrainTransport(Administrator admin, int originid, int destinationid, int year, int month, int day, int hourd, int mind, int houra, int mina, int firstcapacity, int secondcapacity) {
         try {
             bookingSystem.createTrainTransport(admin, originid, destinationid, year, month, day, hourd, mind, houra, mina, firstcapacity, secondcapacity);
             System.out.println("Successfully created new train transport!");
